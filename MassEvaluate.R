@@ -7,7 +7,7 @@
 # The data are cleaned in MassPrep.R and analyzed in MassAnalysis.R
 ################################################################################
 
-setwd("~/Boston University/Dissertation/dissertation_code")
+setwd("~/Boston University/Dissertation")
 rm(list = ls())
 options(scipen = 999)
 
@@ -22,14 +22,14 @@ load_all("../nbTransmission")
 
 
 #Reading in cleaned datasets from MassPrep.R and results from MassAnalysis.R
-massInd <- readRDS("../Datasets/MassInd.rds")
-massPair <- readRDS("../Datasets/MassPair.rds")
-resMassCov <- readRDS("../Datasets/MassResults.rds")
-resMassCov2 <- readRDS("../Datasets/MassResults_NoTime.rds")
-siAll <- readRDS("../Datasets/MassSI.rds")
-RiData <- readRDS("../Datasets/MassRi.rds")
-RtData <- readRDS("../Datasets/MassRtCI.rds")
-RtAvg <- readRDS("../Datasets/MassRtAvgCI.rds")
+massInd <- readRDS("Datasets/MassInd.rds")
+massPair <- readRDS("Datasets/MassPair.rds")
+resMassCov <- readRDS("Datasets/MassResults.rds")
+resMassCov2 <- readRDS("Datasets/MassResults_NoTime.rds")
+siAll <- readRDS("Datasets/MassSI.rds")
+RiData <- readRDS("Datasets/MassRi.rds")
+RtData <- readRDS("Datasets/MassRtCI.rds")
+RtAvg <- readRDS("Datasets/MassRtAvgCI.rds")
 
 #Creating an ordered dataset that also removes pairs with different lineages
 orderedMass <- (massPair
@@ -108,7 +108,7 @@ ggplot(data = resMassCov2C) +
         legend.title = element_blank(),
         axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
         axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
-  ggsave(file = "../Figures/MassProbs.png",
+  ggsave(file = "Figures/MassProbs.png",
          width = 8, height = 6, units = "in", dpi = 300)
   
 
@@ -223,7 +223,7 @@ ggplot(data = siAllLong2 %>% filter(cutoff != "pooled"),
                                     size = 11),
         axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0),
                                     size = 11)) +
-  ggsave(file = "../Figures/MassSI.png",
+  ggsave(file = "Figures/MassSI.png",
          width = 7, height = 7, units = "in", dpi = 300)
 
 
@@ -262,7 +262,7 @@ ggplot(data = RtData, aes(x = timeRank, y = Rt)) +
                                     size = 12),
         axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0),
                                     size = 12)) +
-  ggsave(file = "../Figures/MassRt.png",
+  ggsave(file = "Figures/MassRt.png",
          width = 8, height = 6, units = "in", dpi = 300)
 
 

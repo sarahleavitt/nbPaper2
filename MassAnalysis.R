@@ -12,7 +12,7 @@
 ################################################################################
 
 
-setwd("~/Boston University/Dissertation/dissertation_code")
+setwd("~/Boston University/Dissertation")
 rm(list = ls())
 
 
@@ -25,8 +25,8 @@ load_all("../nbTransmission")
 
 #Reading in cleaned datasets from MassPrep.R
 set.seed(103020)
-massInd <- readRDS("../Datasets/MassInd.rds")
-massPair <- readRDS("../Datasets/MassPair.rds")
+massInd <- readRDS("Datasets/MassInd.rds")
+massPair <- readRDS("Datasets/MassPair.rds")
 
 #How many pairs are different lineages (52%)
 sum(massPair$Lineage == "Different", na.rm = TRUE)
@@ -107,10 +107,10 @@ print("Finished estimating probabilities without time difference")
 
 
 #Saving the results
-saveRDS(resMassCov, "../Datasets/MassResults.rds")
-saveRDS(resMassCoeff, "../Datasets/MassORs.rds")
-saveRDS(resMassCov2, "../Datasets/MassResults_NoTime.rds")
-saveRDS(resMassCoeff, "../Datasets/MassORsNoTime.rds")
+saveRDS(resMassCov, "Datasets/MassResults.rds")
+saveRDS(resMassCoeff, "Datasets/MassORs.rds")
+saveRDS(resMassCov2, "Datasets/MassResults_NoTime.rds")
+saveRDS(resMassCoeff, "Datasets/MassORsNoTime.rds")
 
 
 

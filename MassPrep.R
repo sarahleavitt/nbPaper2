@@ -6,7 +6,7 @@
 # This program reads in and formats the Mass DPH data to prepare for analysis
 #################################################################################
 
-setwd("~/Boston University/Dissertation/Datasets")
+setwd("~/Boston University/Dissertation")
 rm(list = ls())
 set.seed(103020)
 
@@ -18,11 +18,11 @@ library(reshape2)
 library(readxl)
 
 #Reading in the original dataset
-massInd <- read_excel("genotyping IRB data set-  jan 2010 to dec 2016 ver 2.5.xlsx",
+massInd <- read_excel("Datasets/genotyping IRB data set-  jan 2010 to dec 2016 ver 2.5.xlsx",
                       na = c("", "#N/A"))
 
 #Reading in my contact groupings
-massContacts <- read.csv("DPH_ContactGroups.csv")
+massContacts <- read.csv("Datasets/DPH_ContactGroups.csv")
 
 #Looking at resistance data
 vars <- c("ISUSINH", "ISUSRIF", "ISUSPZA", "ISUSEMB", "ISUSSM", "ISUSETH", "ISUSKAN",
@@ -238,7 +238,7 @@ table(massPair$ContactTrain, useNA = "always")
 
 #Adding county data
 table(massInd2$County)
-countyMatrix <- read.csv("../Datasets/DPH_Counties.csv", row.names = "RowNames",
+countyMatrix <- read.csv("Datasets/DPH_Counties.csv", row.names = "RowNames",
                          stringsAsFactors = FALSE)
 countyDf <- reshape2::melt(as.matrix(countyMatrix), varnames = c("County.1", "County.2"))
 names(countyDf) <- c("County.1", "County.2", "County")
@@ -288,8 +288,8 @@ massPair3 <- (massPair2
 )
 
 
-saveRDS(massInd3, "../Datasets/MassInd.rds")
-saveRDS(massPair3, "../Datasets/MassPair.rds")
+saveRDS(massInd3, "Datasets/MassInd.rds")
+saveRDS(massPair3, "Datasets/MassPair.rds")
 
 
   

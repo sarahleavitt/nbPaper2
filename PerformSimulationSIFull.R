@@ -26,7 +26,7 @@ library(roxygen2)
 
 #### Batch Mode ####
 
-setwd("/project/sv-thesis/dissertation_code/")
+setwd("/project/sv-thesis/nbPaper2/")
 #Getting sample size from the arguements
 argv <- commandArgs(trailingOnly = TRUE)
 #Finding the task number for the run
@@ -50,7 +50,7 @@ iPar2 <- as.numeric(argv[9])
 
 #### Interactive Mode ####
 
-# setwd("~/Boston University/Dissertation/dissertation_code")
+# setwd("~/Boston University/Dissertation/nbPaper2")
 # iTask <- 1
 # nSim <- 2
 # 
@@ -68,10 +68,10 @@ iPar2 <- as.numeric(argv[9])
 # iPar2 <- 4
 
 load_all("../nbTransmission")
-source("SimOutbreak.R")
-source("SimulateOutbreakS.R")
-source("SimCovariates.R")
-source("SimEvaluate.R")
+source("../nbSimulation/SimOutbreak.R")
+source("../nbSimulation/SimulateOutbreakS.R")
+source("../nbSimulation/SimCovariates.R")
+source("../nbSimulation/SimEvaluate.R")
 source("SimRunSIFull.R")
 
 

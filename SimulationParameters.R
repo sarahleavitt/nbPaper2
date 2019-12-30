@@ -9,7 +9,7 @@
 
 #rm(list = ls())
 options(scipen=999)
-setwd("~/Boston University/Dissertation/dissertation_code")
+setwd("~/Boston University/Dissertation/nbPaper1")
 
 library(TransPhylo)
 library(phangorn)
@@ -23,9 +23,9 @@ library(gtools)
 library(devtools)
 library(roxygen2)
 
-source("SimOutbreak.R")
-source("SimulateOutbreakS.R")
-source("SimCovariates.R")
+source("../nbSimulation/SimOutbreak.R")
+source("../nbSimulation/SimulateOutbreakS.R")
+source("../nbSimulation/SimCovariates.R")
 #load("../Datasets/SimulationParameters.RData")
 
 
