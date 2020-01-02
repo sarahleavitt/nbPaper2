@@ -1,6 +1,18 @@
 #!/bin/bash
 
 #Running the different scenarios
+
+#Arguments are:
+	#sample size
+	#reproductive number
+	#generation interval shape
+	#generation interval scale
+	#mutation rate
+	#lower SNP threshold (link)
+	#upper SNP threshold (nonlink)
+	#initial shape parameter
+	#initial scale parameter
+	
 qsub -N SI_Baseline SimQsubSIFull.qsub 300 1.5 2.25 0.0122 25 3 7 3 4
 
 qsub -N SI_LowR0 SimQsubSIFull.qsub 300 1.2 2.25 0.0122 25 3 7 3 4

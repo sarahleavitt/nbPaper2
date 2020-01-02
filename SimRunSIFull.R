@@ -94,7 +94,7 @@ SimRunSI <- function(label, observationDate) {
   )
   
   
-  #### Estimating the serial interval distribution ####
+  #### Estimating the generation interval distribution ####
   
   siPars <- siMethods(allProbs, shift = shift, initialPars = initialPars, dateVar = dateVar)
   
