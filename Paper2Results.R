@@ -21,6 +21,7 @@ library(devtools)
 library(ggplot2)
 library(gridExtra)
 library(dendextend)
+library(purrr)
 
 load_all("../nbTransmission")
 source("../nbSimulation/SimOutbreak.R")
@@ -259,10 +260,13 @@ si2 <- (si
         #Reorder label
         #Renaming incorrect columns
         %>% mutate(label = factor(label, levels = c("Baseline", "LowN", "HighN",
-                                                    "LowR", "HighR",
-                                                    "LowMR", "HighMR",
-                                                    "LowGIV", "HighGIV",
-                                                    "LowGIM", "HighGIM")),
+                                                    "LowR", "HighR", "LowMR",
+                                                    "HighMR", "LowGIV", "HighGIV",
+                                                    "LowGIM", "HighGIM"),
+                                  labels = c("Baseline", "LowN", "HighN",
+                                             "LowR", "HighR", "LowMR",
+                                             "HighMR", "LowGV", "HighGV",
+                                             "LowGM", "HighGM")),
                    meanSI = ifelse(is.na(meanSI), mean, meanSI),
                    medianSI = ifelse(is.na(medianSI), median, medianSI),
                    sdSI = ifelse(is.na(sdSI), sd, sdSI),
@@ -275,7 +279,7 @@ si2 <- (si
                    relMedianDiff = medianDiff/obsMean,
                    relSDDiff = sdDiff / obsSD)
         %>% select(-mean, -median, -sd)
-        %>% filter(!label %in% c("LowGIM", "HighGIM"))
+        %>% filter(!label %in% c("LowGM", "HighGM"))
 )
 
 
@@ -285,9 +289,9 @@ plotData1 <- (si2
               %>% filter(prob %in% c("All", "Naive", "Npooled", "KDpooled", "HCpooled"))
               %>% mutate(probf = factor(prob, levels = c("Naive", "All", "Npooled",
                                                          "HCpooled", "KDpooled"),
-                                        labels = c("SNP Distance", "Hens: All Pairs",
-                                                   "Hens: Top N", "Hens: Hierarchical",
-                                                   "Hens: Kernel Density")))
+                                        labels = c("SNP Distance", "PEM: All Pairs",
+                                                   "PEM: Top N", "PEM: Hierarchical",
+                                                   "PEM: Kernel Density")))
               %>% select(label, probf, Mean = meanDiff, Median = medianDiff, SD = sdDiff)
               %>% gather("Parameter", "absDiff", -label, -probf)
 )
@@ -372,11 +376,14 @@ ggsave(file = "../Figures/GIError.png", plot = pError,
 longData <- (perform
              %>% ungroup()
              %>% mutate(label = factor(label, levels = c("Baseline", "LowN", "HighN",
-                                                         "LowR", "HighR",
-                                                         "LowMR", "HighMR",
-                                                         "LowGIV", "HighGIV",
-                                                         "LowGIM", "HighGIM")))
-             %>% filter(!label %in% c("LowGIM", "HighGIM"))
+                                                         "LowR", "HighR", "LowMR",
+                                                         "HighMR", "LowGIV", "HighGIV",
+                                                         "LowGIM", "HighGIM"),
+                                       labels = c("Baseline", "LowN", "HighN",
+                                                  "LowR", "HighR", "LowMR",
+                                                  "HighMR", "LowGV", "HighGV",
+                                                  "LowGM", "HighGM")))
+             %>% filter(!label %in% c("LowGM", "HighGM"))
              %>% select(runID, label, aucVal, pCorrect,
                         pTop5, pTop10, pTop25, pTop50)
              %>% gather(metric, value, -label, -runID)

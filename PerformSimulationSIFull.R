@@ -21,7 +21,6 @@ library(pROC)
 library(caret)
 library(gtools)
 library(devtools)
-library(roxygen2)
 
 
 #### Batch Mode ####
@@ -85,13 +84,13 @@ if(off.r < 1.3){
 } else if(off.r > 1.7){
   label <- "HighR"
 } else if(w.shape > 3){
-  label <- "LowGIV"
+  label <- "LowGV"
 } else if(w.shape < 2){
-  label <- "HighGIV"
+  label <- "HighGV"
 } else if(w.scale < 0.01){
-  label <- "LowGIM"
+  label <- "LowGM"
 } else if(w.scale > 0.02){
-  label <- "HighGIM"
+  label <- "HighGM"
 } else if(sampleSize < 300){
   label <- "LowN"
 } else if(sampleSize > 300){

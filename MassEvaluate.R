@@ -8,7 +8,7 @@
 ################################################################################
 
 setwd("~/Boston University/Dissertation")
-rm(list = ls())
+#rm(list = ls())
 options(scipen = 999)
 
 library(dplyr)
@@ -18,7 +18,7 @@ library(tableone)
 library(devtools)
 library(ggplot2)
 library(ggforce)
-load_all("../nbTransmission")
+load_all("nbTransmission")
 
 
 #Reading in cleaned datasets from MassPrep.R and results from MassAnalysis.R
@@ -53,14 +53,33 @@ massInd <- massInd %>% replace_na(list(HaveContInv = "No"))
 ## Individual Level ##
 indCat <- c("Sex", "Age", "USBorn", "RecentArrival", "Smear", "AnyImmunoSup",
             "ISUSRIF", "ISUSINH",  "ISUSPZA", "ISUSEMB", "ISUSSM", "ISUSETH",
-            "County", "Lineage", "HaveContact", "HaveContInv")
+            "County", "Lineage")
 
 covarInd <- CreateTableOne(vars = indCat, factorVars = indCat, data = massInd)
-covarInd <- as.data.frame(print(covarInd, showAllLevels = TRUE, missing = TRUE))
+covarInd <- as.data.frame(print(covarInd, showAllLevels = TRUE))
 
 sum(is.na(massInd$GENType))
 sum(is.na(massInd$Spoligotype))
 sum(is.na(massInd$MIRUComb))
+
+#Finding the amount of missing values for each variable
+findMissingness <- function(data){
+  
+  #Calculating n(%) missing
+  numMiss <- apply(data, 2, function(x)sum(is.na(x)))
+  percMiss <- 100 * (numMiss / nrow(data))
+  missData <- cbind.data.frame(numMiss, percMiss)
+  #If a category is not completely missing but rounds to 100% that >99.99% missing is printed
+  #Similarly, if it is mostly not missing but rounds to 0%, <0.01% is printed
+  missData$percMissf <- ifelse(missData$numMiss != nrow(data) 
+                               & round(missData$percMiss, 2) == 100, ">99.99",
+                               ifelse(missData$numMiss != 0 & round(missData$percMiss, 2) == 0, "<0.01",
+                                      sprintf("%.2f", round(missData$percMiss, 2))))
+  missData$nPercMiss <- paste(missData$numMiss, " (", missData$percMissf, "%)", sep="")
+  
+  return(missData)
+}
+findMissingness(massInd[, indCat])
 
 
 ## Pair Level ##
