@@ -16,7 +16,7 @@ setwd("~/Boston University/Dissertation")
 rm(list = ls())
 
 
-######################### Section 1: Estimating Probabilities ############################
+######################### Estimating Probabilities ############################
 
 library(dplyr)
 library(tidyr)
@@ -66,7 +66,7 @@ covariates <- c("Sex", "Age", "CountryOfBirth", "County", "Smear", "AnyImmunoSup
 
 resMass <- nbProbabilities(orderedPair = orderedMass, indIDVar = "StudyID", pairIDVar = "EdgeID",
                            goldStdVar = "ContactTrain", covariates = covariates,
-                           label = "ContactTime", l = 0.5, n = 10, m = 1, nReps = 10)
+                           label = "ContactTime", l = 0.5, n = 10, m = 1, nReps = 20)
 
 resMassCov <- (orderedMass
                %>% full_join(resMass$probabilities, by = "EdgeID")
@@ -108,14 +108,12 @@ print("Finished estimating probabilities without time difference")
 
 #Saving the results
 saveRDS(resMassCov, "Datasets/MassResults.rds")
-saveRDS(resMassCoeff, "Datasets/MassORs.rds")
 saveRDS(resMassCov2, "Datasets/MassResults_NoTime.rds")
-saveRDS(resMassCoeff, "Datasets/MassORsNoTime.rds")
 
 
 
 
-###################### Section 2: Serial Interval ########################
+###################### Serial Interval ########################
 
 #Loading libraries (repeating to run in parallel)
 library(dplyr)
@@ -161,7 +159,7 @@ saveRDS(siAll, "../Datasets/MassSI.rds")
 
 
 
-####################### Section 3: Reproductive Number ###########################
+####################### Reproductive Number ###########################
 
 #Loading libraries (repeating to run in parallel)
 library(dplyr)

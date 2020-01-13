@@ -181,9 +181,9 @@ massPair <- (pairs2
                                          ifelse(CountryOfBirth.1 != CountryOfBirth.2 &
                                                  (CountryOfBirth.1 == "UNITED STATES" |
                                                   CountryOfBirth.2 == "UNITED STATES"), 3, 4))),
-                        CountryOfBirth = factor(CountryOfBirth, levels = c(4, 3, 2, 1),
-                                             labels = c("Diff-Other","Diff-USA", "Same-Other",
-                                                        "Same-USA")),
+                        CountryOfBirth = factor(CountryOfBirth, levels = c(3, 1, 4, 2),
+                                             labels = c("Diff-USA","Same-USA", "Diff-Other",
+                                                        "Same-Other")),
                         Age = Age.1 == Age.2,
                         Age = factor(Age, levels = c(FALSE, TRUE),
                                      labels = c("Different", "Same")),

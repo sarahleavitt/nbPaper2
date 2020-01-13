@@ -71,7 +71,7 @@ source("../nbSimulation/SimOutbreak.R")
 source("../nbSimulation/SimulateOutbreakS.R")
 source("../nbSimulation/SimCovariates.R")
 source("../nbSimulation/SimEvaluate.R")
-source("SimRunSIFull.R")
+source("SimRunSI.R")
 
 
 
@@ -164,7 +164,6 @@ alpha = 0.05
 
 si <- NULL
 performance <- NULL
-idenInfo <- NULL
 
 #Running the simuliaton for the outbreaks
 for (iteration in 1:nSim){
