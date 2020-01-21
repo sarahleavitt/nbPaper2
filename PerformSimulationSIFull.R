@@ -65,13 +65,15 @@ iPar2 <- as.numeric(argv[9])
 # upperT <- 7
 # iPar1 <- 3
 # iPar2 <- 4
-# 
-# load_all("../nbTransmission")
-# source("../nbSimulation/SimOutbreak.R")
-# source("../nbSimulation/SimulateOutbreakS.R")
-# source("../nbSimulation/SimCovariates.R")
-# source("../nbSimulation/SimEvaluate.R")
-# source("SimRunSIFull.R")
+
+
+ 
+load_all("../nbTransmission")
+source("../nbSimulation/SimOutbreak.R")
+source("../nbSimulation/SimulateOutbreakS.R")
+source("../nbSimulation/SimCovariates.R")
+source("../nbSimulation/SimEvaluate.R")
+source("SimRunSIFull.R")
 
 
 
