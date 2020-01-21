@@ -7,16 +7,13 @@
 #$ -l h_rt=12:00:00
 
 #Name a job
-#$ -N SimEffectEst
+#$ -N MassAnalysis
 
 #join error and output stream
 #$ -j y
 
 #Send email when job ends or aborts
 #$-m e
-
-#This line runs the set of nSim simulations this many times
-#$-t 1-20
 
 #Other options that were in script from JB
 #$-l mem_per_core=8G
