@@ -48,13 +48,13 @@ iPar2 <- as.numeric(argv[9])
 
 
 #### Interactive Mode ####
-
+# 
 # setwd("~/Boston University/Dissertation/nbPaper2")
 # iTask <- 1
 # nSim <- 2
 # 
 # ## Parameters to change ##
-# sampleSize <- 300
+# sampleSize <- 200
 # off.r <- 1.5
 # w.shape <- 2.25
 # w.scale <- 0.0122
@@ -65,13 +65,13 @@ iPar2 <- as.numeric(argv[9])
 # upperT <- 7
 # iPar1 <- 3
 # iPar2 <- 4
-
-load_all("../nbTransmission")
-source("../nbSimulation/SimOutbreak.R")
-source("../nbSimulation/SimulateOutbreakS.R")
-source("../nbSimulation/SimCovariates.R")
-source("../nbSimulation/SimEvaluate.R")
-source("SimRunSI.R")
+# 
+# load_all("../nbTransmission")
+# source("../nbSimulation/SimOutbreak.R")
+# source("../nbSimulation/SimulateOutbreakS.R")
+# source("../nbSimulation/SimCovariates.R")
+# source("../nbSimulation/SimEvaluate.R")
+# source("SimRunSIFull.R")
 
 
 
