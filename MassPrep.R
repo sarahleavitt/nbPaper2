@@ -6,7 +6,7 @@
 # This program reads in and formats the Mass DPH data to prepare for analysis
 #################################################################################
 
-setwd("~/Boston University/Dissertation")
+setwd("~/Boston University/Dissertation/nbPaper2")
 rm(list = ls())
 set.seed(103020)
 
@@ -16,13 +16,16 @@ library(naniar)
 library(lubridate)
 library(reshape2)
 library(readxl)
+library(stringr)
+library(tableone)
+library(ggplot2)
 
 #Reading in the original dataset
-massInd <- read_excel("Datasets/genotyping IRB data set-  jan 2010 to dec 2016 ver 2.5.xlsx",
+massInd <- read_excel("../Datasets/genotyping IRB data set-  jan 2010 to dec 2016 ver 2.5.xlsx",
                       na = c("", "#N/A"))
 
 #Reading in my contact groupings
-massContacts <- read.csv("Datasets/DPH_ContactGroups.csv")
+massContacts <- read.csv("../Datasets/DPH_ContactGroups.csv")
 
 #Looking at resistance data
 vars <- c("ISUSINH", "ISUSRIF", "ISUSPZA", "ISUSEMB", "ISUSSM", "ISUSETH", "ISUSKAN",
@@ -79,16 +82,17 @@ massInd2 <- (massInd
                         CombinedDt = as.Date(ifelse(SuspectDt < CountedDt, SuspectDt, CountedDt),
                                              origin = "1970-01-01"),
                         CombinedY = year(CombinedDt),
-                        RecentArrival = as.numeric(CombinedY) - YearOfArrival <= 2,
+                        RecentArrival2 = as.numeric(CombinedY) - YearOfArrival <= 2,
+                        RecentArrival1 = as.numeric(CombinedY) - YearOfArrival <= 1,
                         MIRUComb = paste0(MIRU, MIRU2))
              %>% replace_with_na(list(MIRUComb = "NANA"))
              %>% full_join(massContacts, by = "StudyID")
              %>% select(StudyID, SuspectDt, CountedDt, CombinedDt, CombinedY, County = COUNTY,
                         Sex = SEX, Age, Spoligotype, MIRU, MIRU2, MIRUComb, GENType, PCRType,
                         Lineage = `Genotyping Lineage`, CountryOfBirth = `Country of birth`,
-                        USBorn, YearOfArrival, RecentArrival, ISUSINH, ISUSRIF, ISUSPZA, ISUSEMB,
-                        ISUSSM, ISUSETH, Smear, Culture, AnyImmunoSup = `Any ImmunoSupression`,
-                        Contact = `Linked Case1`, ContactGroup,
+                        USBorn, YearOfArrival, RecentArrival1, RecentArrival2,
+                        ISUSINH, ISUSRIF, ISUSPZA, ISUSEMB, ISUSSM, ISUSETH, Smear, Culture,
+                        AnyImmunoSup = `Any ImmunoSupression`, Contact = `Linked Case1`, ContactGroup,
                         HaveContInv = `Contact Investigation Done`, EpiLinkFound)
              %>% mutate(HaveContact = !is.na(ContactGroup))
              #Excluding cases with M. Bovis
@@ -100,7 +104,7 @@ table(massInd2$CombinedY, massInd2$HaveContInv)
 haveContact2 <- (massInd2
                  %>% filter(!is.na(ContactGroup) | !is.na(Contact))
                  %>% select(StudyID, ContactGroup, Contact, HaveContact, HaveContInv,
-                            EpiLinkFound, RecentArrival, YearOfArrival, CombinedY)
+                            EpiLinkFound, RecentArrival1, RecentArrival2, YearOfArrival, CombinedY)
 )
 
 #### Creating Training Pairs ####
@@ -238,7 +242,7 @@ table(massPair$ContactTrain, useNA = "always")
 
 #Adding county data
 table(massInd2$County)
-countyMatrix <- read.csv("Datasets/DPH_Counties.csv", row.names = "RowNames",
+countyMatrix <- read.csv("../Datasets/DPH_Counties.csv", row.names = "RowNames",
                          stringsAsFactors = FALSE)
 countyDf <- reshape2::melt(as.matrix(countyMatrix), varnames = c("County.1", "County.2"))
 names(countyDf) <- c("County.1", "County.2", "County")
@@ -287,9 +291,9 @@ massPair3 <- (massPair2
                          MIRUDiffG = factor(MIRUDiffG, levels = c("0", "1", "2", "3", "4+")))
 )
 
-
-saveRDS(massInd3, "Datasets/MassInd.rds")
-saveRDS(massPair3, "Datasets/MassPair.rds")
+#Saving datasets
+saveRDS(massInd3, "../Datasets/MassInd.rds")
+saveRDS(massPair3, "../Datasets/MassPair.rds") 
 
 
   

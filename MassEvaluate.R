@@ -89,13 +89,6 @@ pairCat <- c("Sex", "Age", "CountryOfBirth", "Smear", "AnyImmunoSup",
 covarPair <- CreateTableOne(vars = pairCat, factorVars = pairCat, data = orderedMass)
 covarPair <- as.data.frame(print(covarPair, showAllLevels = TRUE))
 
-#Stratified by contact group
-covarPairC <- CreateTableOne(vars = pairCat, factorVars = pairCat,
-                            data = orderedMass, strata = "ContactTrain", test = FALSE)
-covarPairC <- as.data.frame(print(covarPairC, showAllLevels = TRUE))
-
-covarPairAll <- cbind.data.frame(covarPair, covarPairC)
-
 table(orderedMass$Lineage, useNA = "always")
 prop.table(table(orderedMass$Lineage, useNA = "always"))
 
@@ -128,6 +121,21 @@ ggplot(data = resMassCov2C) +
         axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
         axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
   ggsave(file = "Figures/MassProbs.png",
+         width = 8, height = 6, units = "in", dpi = 300)
+
+## COLOR VERSION ##
+ggplot(data = resMassCov2C) +
+  geom_histogram(aes(x = pScaledI, fill = clusterC),
+                 binwidth = 0.1, position = "dodge") +
+  scale_y_continuous(name = "Number of Case Pairs") +
+  scale_x_continuous(name = "Relative Transmission Probability") +
+  facet_zoom(ylim = c(0, 300)) +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
+  ggsave(file = "Figures/MassProbs_color.png",
          width = 8, height = 6, units = "in", dpi = 300)
   
 
@@ -176,6 +184,7 @@ formatSITable <- function(siTable){
 
 #Tables of pooled results for text
 pooled <- formatSITable(siAll %>% filter(cutoff == "pooled"))
+pooled %>% select(-npIncluded)
 
 #### Supplementary Tables: Detailed Serial Interval Results ####
 siHC <- formatSITable(siAll %>% filter(clustMethod == "hc_absolute"))
@@ -183,7 +192,10 @@ siKD <- formatSITable(siAll %>% filter(clustMethod == "kd"))
 
 
 #Creating alternative label
-siAll <- siAll %>% mutate(label2 = gsub("[A-Z]{2}: ", "", label))
+siAll <- siAll %>% mutate(label2 = gsub("[A-Z]{2}: ", "", label),
+                          label2 = factor(label2, levels = c("Excluding 3-month co-prevalent cases",
+                                                             "Excluding 1-month co-prevalent cases",
+                                                             "No exclusions")))
 
 ## Creating long dataset ##
 meanDf <- (siAll
@@ -233,7 +245,7 @@ ggplot(data = siAllLong2 %>% filter(cutoff != "pooled"),
   scale_x_continuous(name = "Clustering Cutoff/Binwidth") +
   scale_y_continuous(name = "Estimate in Years") +
   theme_bw() +
-  scale_color_grey(start = 0.6, end = 0.3) +
+  #scale_color_grey(start = 0.7, end = 0.3) +
   theme(legend.position = "bottom",
         legend.title = element_blank(),
         axis.text.x = element_text(size = 10),
@@ -259,29 +271,29 @@ monthCut2 <- ceiling(0.8 * totalTime)
 
 
 #### Figure: Plot of Rt Estimates by Month with CIs ####
-ggplot(data = RtData, aes(x = timeRank, y = Rt)) +
+ggplot(data = RtData, aes(x = timeRank, y = Rt, color = label)) +
   geom_point() +
   geom_line() +
-  geom_errorbar(aes(ymin = ciLower, ymax = ciUpper), width = 0.7, color = "grey40") +
+  #geom_errorbar(aes(ymin = ciLower, ymax = ciUpper), width = 0.7, color = "grey40") +
   scale_y_continuous(name = "Monthly Effective Reproductive Number") + 
   scale_x_continuous(name = "Year of Observation", breaks = seq(3, 89, 12),
                      labels = seq(2010, 2017, 1)) +
   geom_vline(aes(xintercept = monthCut1), linetype = "dotted", size = 0.7) +
   geom_vline(aes(xintercept = monthCut2), linetype = "dotted", size = 0.7) +
-  geom_hline(data = RtAvg, aes(yintercept = RtAvg), size = 0.7) +
+  geom_hline(data = RtAvg, aes(yintercept = RtAvg, color = label), size = 0.7) +
   theme_bw() +
-  geom_hline(data = RtAvg, aes(yintercept = ciLower), linetype = "dashed",
-             size = 0.5, color = "grey40") +
-  geom_hline(data = RtAvg, aes(yintercept = ciUpper), linetype = "dashed",
-             size = 0.5, color = "grey40") +
+  #geom_hline(data = RtAvg, aes(yintercept = ciLower), linetype = "dashed",
+  #           size = 0.5, color = "grey40") +
+  #geom_hline(data = RtAvg, aes(yintercept = ciUpper), linetype = "dashed",
+  #           size = 0.5, color = "grey40") +
   theme(panel.grid.minor = element_blank(),
         axis.text.x = element_text(size = 11),
         axis.text.y = element_text(size = 11),
         axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0),
                                     size = 12),
         axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0),
-                                    size = 12)) +
-  ggsave(file = "Figures/MassRt.png",
-         width = 8, height = 6, units = "in", dpi = 300)
+                                    size = 12))
+  #ggsave(file = "Figures/MassRt.png",
+  #       width = 8, height = 6, units = "in", dpi = 300)
 
 

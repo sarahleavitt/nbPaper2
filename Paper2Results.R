@@ -156,6 +156,25 @@ p2 <- ggplot(data = ind2, aes(x = pRank, y = pScaled, color = cluster)) +
   theme(legend.position = "none") +
   ggtitle("Case B")
 
+## COLOR VERSIONS ##
+p1c <- ggplot(data = ind1, aes(x = pRank, y = pScaled, color = cluster)) +
+  geom_jitter() +
+  xlab("Probability Rank") +
+  ylab("Relative Probability") +
+  scale_color_manual(values = c("#00BFC4", "#F8766D"), drop = FALSE) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  ggtitle("Case A")
+
+p2c <- ggplot(data = ind2, aes(x = pRank, y = pScaled, color = cluster)) +
+  geom_jitter() +
+  xlab("Probability Rank") +
+  ylab("Relative Probability") +
+  scale_color_manual(values = c("#00BFC4", "#F8766D"), drop = FALSE) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  ggtitle("Case B")
+
 
 #### Plot of dendrograms ####
 
@@ -190,6 +209,21 @@ pHC2 <- ggplot(as.ggdend(hclustD2)) +
   xlab("Probability Rank") +
   ylab("Height")
 
+## COLOR VERSIONS ##
+pHC1c <- ggplot(as.ggdend(hclustD1)) +
+  theme_bw() +
+  scale_color_manual(values = c("#F8766D", "#00BFC4", "red")) +
+  scale_x_continuous(limits = c(0, 40)) +
+  xlab("Probability Rank") +
+  ylab("Height")
+
+pHC2c <- ggplot(as.ggdend(hclustD2)) +
+  theme_bw() +
+  scale_color_manual(values = c("#F8766D", "#00BFC4", "red")) +
+  scale_x_continuous(limits = c(0, 90)) +
+  xlab("Probability Rank") +
+  ylab("Height")
+
 
 
 #### Plot of densities ####
@@ -198,6 +232,13 @@ pKD1 <- findClustersKD(df = ind1, pVar = "pScaled", cutoff = 0.01, plot = TRUE,
                        colors = c("black", "darkgrey"))
 pKD2 <- findClustersKD(df = ind2, pVar = "pScaled", cutoff = 0.01, plot = TRUE,
                        colors = c("black", "darkgrey"))
+
+## COLOR VERSIONS ##
+pKD1c <- findClustersKD(df = ind1, pVar = "pScaled", cutoff = 0.01, plot = TRUE,
+                        colors = c("#00BFC4", "#F8766D"))
+pKD2c <- findClustersKD(df = ind2, pVar = "pScaled", cutoff = 0.01, plot = TRUE,
+                        colors = c("#00BFC4", "#F8766D"))
+
 
 
 
@@ -208,6 +249,12 @@ grid.arrange(p1, p2, pHC1, pHC2, pKD1, pKD2, layout_matrix = lay)
 
 pAll <- arrangeGrob(p1, p2, pHC1, pHC2, pKD1, pKD2, layout_matrix = lay)
 ggsave(file = "../Figures/ClustExamples.png", plot = pAll,
+       width = 6, height = 7, units = "in", dpi = 300)
+
+## COLOR VERSION ##
+grid.arrange(p1c, p2c, pHC1c, pHC2c, pKD1c, pKD2c, layout_matrix = lay)
+pAllc <- arrangeGrob(p1c, p2c, pHC1c, pHC2c, pKD1c, pKD2c, layout_matrix = lay)
+ggsave(file = "../Figures/ClustExamples_color.png", plot = pAllc,
        width = 6, height = 7, units = "in", dpi = 300)
 
 
