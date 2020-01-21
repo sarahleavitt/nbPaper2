@@ -12,7 +12,8 @@
 ################################################################################
 
 
-setwd("~/Boston University/Dissertation")
+#setwd("~/Boston University/Dissertation/nbPaper2")
+setwd("/project/sv-thesis/dissertation_code/")
 rm(list = ls())
 
 
@@ -25,8 +26,8 @@ load_all("../nbTransmission")
 
 #Reading in cleaned datasets from MassPrep.R
 set.seed(103020)
-massInd <- readRDS("Datasets/MassInd.rds")
-massPair <- readRDS("Datasets/MassPair.rds")
+massInd <- readRDS("../Datasets/MassInd.rds")
+massPair <- readRDS("../Datasets/MassPair.rds")
 
 #How many pairs are different lineages (52%)
 sum(massPair$Lineage == "Different", na.rm = TRUE)
@@ -36,13 +37,16 @@ sum(massPair$Lineage == "Different", na.rm = TRUE) / nrow(massPair)
 orderedMass <- (massPair
                 %>% filter(CombinedDiff >= 0, Lineage == "Same" | is.na(Lineage))
                 %>% select(EdgeID, StudyID.1, StudyID.2, ContactGroup, Lineage.1, Lineage.2,
-                           CombinedDt.1, CombinedDt.2, RecentArrival.1, RecentArrival.2,
-                           County, Sex, Age, Spoligotype, MIRUDiff, MIRUDiffG, GENType,
-                           PCRType, Lineage, CountryOfBirth, Smear, SharedResG, AnyImmunoSup,
-                           TimeCat, CombinedDiff, CombinedDiffY, ContactTrain)
+                           CombinedDt.1, CombinedDt.2, RecentArrival1.1, RecentArrival1.2,
+                           RecentArrival2.1, RecentArrival2.2, County, Sex, Age, Spoligotype,
+                           MIRUDiff, MIRUDiffG, GENType, PCRType, Lineage, CountryOfBirth,
+                           Smear, SharedResG, AnyImmunoSup, TimeCat, CombinedDiff, CombinedDiffY,
+                           ContactTrain)
                 #Creating a gold standard based on the GenType
+                #If the difference in time is 0, setting it to 15 days (half a month)
                 %>% mutate(miruLink = ifelse(GENType == "Same" & County == "Same", TRUE,
-                                             ifelse(MIRUDiffG == "4+", FALSE, NA)))
+                                             ifelse(MIRUDiffG == "4+", FALSE, NA)),
+                           CombinedDiff = ifelse(CombinedDiff == 0, 15/365, CombinedDiff))
 )
 
 print(table(orderedMass$ContactTrain, useNA = "always"))
@@ -51,7 +55,7 @@ print(prop.table(table(orderedMass$ContactTrain, useNA = "always")))
 #Looking at all contact pairs
 contactPairs <- (orderedMass
                  %>% filter(ContactGroup == TRUE)
-                 %>% select(EdgeID, RecentArrival.1, RecentArrival.2, CombinedDt.1, CombinedDt.2,
+                 %>% select(EdgeID, RecentArrival2.1, RecentArrival2.2, CombinedDt.1, CombinedDt.2,
                             CombinedDiff, Lineage.1, Lineage.2, Spoligotype, GENType, PCRType,
                             MIRUDiffG, SharedResG, ContactTrain)
 )
@@ -71,12 +75,12 @@ resMass <- nbProbabilities(orderedPair = orderedMass, indIDVar = "StudyID", pair
 resMassCov <- (orderedMass
                %>% full_join(resMass$probabilities, by = "EdgeID")
                #Setting probabilities to 0 if infectee was a recent immigrant but not if it was a training link
-               %>% mutate(pScaledI = ifelse(!is.na(RecentArrival.2) & 
-                                              RecentArrival.2 == TRUE &
+               %>% mutate(pScaledI1 = ifelse(!is.na(RecentArrival1.2) &
+                                              RecentArrival1.2 == TRUE &
                                               (is.na(ContactTrain) | ContactTrain != TRUE), 0, pScaled),
-                          pAvgI = ifelse(!is.na(RecentArrival.2) & 
-                                           RecentArrival.2 == TRUE &
-                                           (is.na(ContactTrain) | ContactTrain != TRUE), 0, pScaled))
+                          pScaledI2 = ifelse(!is.na(RecentArrival2.2) &
+                                               RecentArrival2.2 == TRUE &
+                                               (is.na(ContactTrain) | ContactTrain != TRUE), 0, pScaled))
 )
 resMassCoeff <- resMass$estimates
 
@@ -94,12 +98,12 @@ resMass2 <- nbProbabilities(orderedPair = orderedMass, indIDVar = "StudyID", pai
 resMassCov2 <- (orderedMass
                 %>% full_join(resMass2$probabilities, by = c("EdgeID"))
                 #Setting probabilities to 0 if infectee was a recent immigrant but not if it was a training link
-                %>% mutate(pScaledI = ifelse(!is.na(RecentArrival.2) & 
-                                               RecentArrival.2 == TRUE &
-                                               (is.na(ContactTrain) | ContactTrain != TRUE), 0, pScaled),
-                           pAvgI = ifelse(!is.na(RecentArrival.2) & 
-                                            RecentArrival.2 == TRUE &
-                                            (is.na(ContactTrain) | ContactTrain != TRUE), 0, pScaled))
+                %>% mutate(pScaledI1 = ifelse(!is.na(RecentArrival1.2) &
+                                                RecentArrival1.2 == TRUE &
+                                                (is.na(ContactTrain) | ContactTrain != TRUE), 0, pScaled),
+                           pScaledI2 = ifelse(!is.na(RecentArrival2.2) &
+                                                RecentArrival2.2 == TRUE &
+                                                (is.na(ContactTrain) | ContactTrain != TRUE), 0, pScaled))
 )
 resMassCoeff2 <- resMass2$estimates
 
@@ -107,8 +111,8 @@ print("Finished estimating probabilities without time difference")
 
 
 #Saving the results
-saveRDS(resMassCov, "Datasets/MassResults.rds")
-saveRDS(resMassCov2, "Datasets/MassResults_NoTime.rds")
+saveRDS(resMassCov, "../Datasets/MassResults.rds")
+saveRDS(resMassCov2, "../Datasets/MassResults_NoTime.rds")
 
 
 
@@ -126,32 +130,58 @@ set.seed(103020)
 resMassCov2 <- readRDS("../Datasets/MassResults_NoTime.rds")
 
 siHC <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
-                  timeDiffVar = "CombinedDiffY", pVar = "pScaledI",
+                  timeDiffVar = "CombinedDiffY", pVar = "pScaledI2",
                   clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
-                  initialPars = c(1.2, 2), shift = 0, bootSamples = 2)
+                  initialPars = c(1.2, 2), shift = 0, bootSamples = 1000)
 siHC$label <- "HC: No exclusions"
 
-siHC12 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
-                   timeDiffVar = "CombinedDiffY", pVar = "pScaledI",
+siHC1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
+                   timeDiffVar = "CombinedDiffY", pVar = "pScaledI2",
                    clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
-                   initialPars = c(1.2, 2), shift = 1/12, bootSamples = 2)
-siHC12$label <- "HC: Excluding 1-month co-prevalent cases"
+                   initialPars = c(1.2, 2), shift = 1/12, bootSamples = 1000)
+siHC1$label <- "HC: Excluding 1-month co-prevalent cases"
+
+siHC3 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
+                     timeDiffVar = "CombinedDiffY", pVar = "pScaledI2",
+                     clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
+                     initialPars = c(1.2, 2), shift = 3/12, bootSamples = 1000)
+siHC3$label <- "HC: Excluding 3-month co-prevalent cases"
 
 
 siKD <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
-                   timeDiffVar = "CombinedDiffY", pVar = "pScaledI",
+                   timeDiffVar = "CombinedDiffY", pVar = "pScaledI2",
                    clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
-                   initialPars = c(1.2, 2), shift = 0, bootSamples = 2)
+                   initialPars = c(1.2, 2), shift = 0, bootSamples = 1000)
 siKD$label <- "KD: No exclusions"
 
-siKD12 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
-                    timeDiffVar = "CombinedDiffY", pVar = "pScaledI",
+siKD1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
+                    timeDiffVar = "CombinedDiffY", pVar = "pScaledI2",
                     clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
-                    initialPars = c(1.2, 2), shift = 1/12, bootSamples = 2)
-siKD12$label <- "KD: Excluding 1-month co-prevalent cases"
+                    initialPars = c(1.2, 2), shift = 1/12, bootSamples = 1000)
+siKD1$label <- "KD: Excluding 1-month co-prevalent cases"
+
+siKD3 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
+                    timeDiffVar = "CombinedDiffY", pVar = "pScaledI2",
+                    clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
+                    initialPars = c(1.2, 2), shift = 3/12, bootSamples = 1000)
+siKD3$label <- "KD: Excluding 3-month co-prevalent cases"
 
 
-siAll <- bind_rows(siHC, siHC12, siKD, siKD12)
+#Sensitivity analysis for recent immigration definition
+siHCI1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
+                   timeDiffVar = "CombinedDiffY", pVar = "pScaledI1",
+                   clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
+                   initialPars = c(1.2, 2), shift = 0, bootSamples = 1000)
+siHCI1$label <- "HC: Recent Arrival = 1 Year"
+
+siKDI1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
+                   timeDiffVar = "CombinedDiffY", pVar = "pScaledI1",
+                   clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
+                   initialPars = c(1.2, 2), shift = 0, bootSamples = 1000)
+siKDI1$label <- "KD: Recent Arrival = 1 Year"
+
+
+siAll <- bind_rows(siHC, siHC1, siHC3, siKD, siKD1, siKD3, siHCI1, siKDI1)
 
 #Saving the serial interval dataset
 saveRDS(siAll, "../Datasets/MassSI.rds")
@@ -164,7 +194,6 @@ saveRDS(siAll, "../Datasets/MassSI.rds")
 #Loading libraries (repeating to run in parallel)
 library(dplyr)
 library(tidyr)
-library(ggplot2)
 library(devtools)
 load_all("../nbTransmission")
 
@@ -173,7 +202,7 @@ resMassCov <- readRDS("../Datasets/MassResults.rds")
 
 #Initially calculating reproductive number to decide cut points
 rInitial <- estimateR(df = resMassCov, dateVar = "CombinedDt", indIDVar = "StudyID",
-                      pVar = "pScaledI", timeFrame = "months")
+                      pVar = "pScaledI2", timeFrame = "months")
 rInitial$RtAvgDf
 rt <- rInitial$RtDf
 
@@ -183,28 +212,43 @@ monthCut1 <- ceiling(0.1 * totalTime)
 monthCut2 <- ceiling(0.8 * totalTime)
 
 #Plotting where to cut
-ggplot(data = rt) +
-  geom_line(aes(x = timeRank, y = Rt)) +
-  scale_y_continuous(name = "Rt") +
-  geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7, col = "blue") +
-  geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7, col = "blue")
+# ggplot(data = rt) +
+#   geom_line(aes(x = timeRank, y = Rt)) +
+#   scale_y_continuous(name = "Rt") +
+#   geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7, col = "blue") +
+#   geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7, col = "blue")
 
 
-#Calculating the reproductive number accounting for importation
-rFinal <- estimateR(resMassCov, dateVar = "CombinedDt", indIDVar = "StudyID",
-                    pVar = "pScaledI", timeFrame = "months",
-                    rangeForAvg = c(monthCut1, monthCut2),
-                    bootSamples = 2, alpha = 0.05)
+#Calculating the reproductive number using 1 year definition for recent immigration
+rFinal1 <- estimateR(resMassCov, dateVar = "CombinedDt", indIDVar = "StudyID",
+                     pVar = "pScaledI1", timeFrame = "months",
+                     rangeForAvg = c(monthCut1, monthCut2),
+                     bootSamples = 1000, alpha = 0.05)
 
-rFinal$RiDf$label <- "Accounting for Importation"
-rFinal$RtDf$label <- "Accounting for Importation"
-rFinal$RtAvgDf$label <- "Accounting for Importation"
+rFinal1$RiDf$label <- "Recent Arrival = 1 Year"
+rFinal1$RtDf$label <- "Recent Arrival = 1 Year"
+rFinal1$RtAvgDf$label <- "Recent Arrival = 1 Year"
+
+
+#Calculating the reproductive number using 2 year definition for recent immigration
+rFinal2 <- estimateR(resMassCov, dateVar = "CombinedDt", indIDVar = "StudyID",
+                     pVar = "pScaledI2", timeFrame = "months",
+                     rangeForAvg = c(monthCut1, monthCut2),
+                     bootSamples = 1000, alpha = 0.05)
+
+rFinal2$RiDf$label <- "Recent Arrival = 2 Years"
+rFinal2$RtDf$label <- "Recent Arrival = 2 Years"
+rFinal2$RtAvgDf$label <- "Recent Arrival = 2 Years"
+
+RiData <- bind_rows(rFinal1$RiDf, rFinal2$RiDf)
+RtData <- bind_rows(rFinal1$RtDf, rFinal2$RtDf)
+RtAvg <- bind_rows(rFinal1$RtAvgDf, rFinal2$RtAvgDf)
 
 
 #Saving the confidence interval datasets
-saveRDS(rFinal$RiDf, "../Datasets/MassRi.rds")
-saveRDS(rFinal$RtDf, "../Datasets/MassRtCI.rds")
-saveRDS(rFinal$RtAvgDf, "../Datasets/MassRtAvgCI.rds")
+saveRDS(RiData, "../Datasets/MassRi.rds")
+saveRDS(RtData, "../Datasets/MassRtCI.rds")
+saveRDS(RtAvg, "../Datasets/MassRtAvgCI.rds")
 
 
 
