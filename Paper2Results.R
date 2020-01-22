@@ -79,7 +79,7 @@ covarInd <- covar[[2]]
 print("Simulated covariates")
 
 #Only using a proportion for training
-pTraining = 1
+pTraining = 0.6
 trainingID <- (covarInd
                %>% filter(complete == TRUE, !is.na(sampleDate))
                %>% sample_frac(pTraining)
