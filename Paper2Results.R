@@ -28,7 +28,6 @@ source("../nbSimulation/SimOutbreak.R")
 source("../nbSimulation/SimulateOutbreakS.R")
 source("../nbSimulation/SimCovariates.R")
 source("../nbSimulation/SimEvaluate.R")
-source("../dissertation_code/ReplaceMerge.R")
 
 
 
@@ -39,7 +38,7 @@ source("../dissertation_code/ReplaceMerge.R")
 #### Simulate Example Outbreak ####
 
 #Parameters to change
-sampleSize <- 300
+sampleSize <- 50
 off.r <- 1.5
 w.shape <- 2.25
 w.scale <- 0.0122
@@ -80,7 +79,7 @@ covarInd <- covar[[2]]
 print("Simulated covariates")
 
 #Only using a proportion for training
-pTraining = 0.6
+pTraining = 1
 trainingID <- (covarInd
                %>% filter(complete == TRUE, !is.na(sampleDate))
                %>% sample_frac(pTraining)
@@ -92,7 +91,8 @@ covarOrderedPair <- (covarPair
                      %>% mutate(snpClose = ifelse(snpDist < lowerT, TRUE,
                                            ifelse(snpDist > upperT, FALSE, NA)),
                                 trainPair = individualID.1 %in% trainingID & individualID.2 %in% trainingID,
-                                snpCloseGS = ifelse(trainPair == TRUE, snpClose, NA))
+                                snpCloseGS = ifelse(trainPair == TRUE, snpClose, NA),
+                                snpClose2 = snpDist < 3)
 )
 
 
@@ -262,7 +262,7 @@ ggsave(file = "../Figures/ClustExamples_color.png", plot = pAllc,
 
 ###################### Simulation Results #########################
 
-setwd("~/Boston University/Dissertation/Simulation_ResultsSI_12.18.19")
+setwd("~/Boston University/Dissertation/Simulation_ResultsSI_1.21.20")
 
 #Initializing dataframes
 si <- NULL
@@ -282,50 +282,22 @@ for (file in list.files()){
   }
 }
 
-#### SECTION TO REMOVE WHEN REDOING SIMULATIONS ####
-
-#Calculating missing pooled estimates
-missPoolRuns <- (si
-                 %>% filter(cutoff == "pooled" & is.na(meanSI))
-                 %>% mutate(uniqueID = paste(runID, label, clustMethod, sep = "_"))
-)
-missPool <- (si
-             %>% mutate(uniqueID = paste(runID, label, clustMethod, sep = "_"))
-             %>% filter(!is.na(clustMethod), uniqueID %in% missPoolRuns$uniqueID,
-                        cutoff != "pooled")
-             %>% select(runID, label, clustMethod, cutoff, meanSI, medianSI, sdSI)
-             %>% group_by(runID, label, clustMethod)
-             %>% summarize(meanSI = mean(meanSI, na.rm = TRUE),
-                           medianSI = mean(medianSI, na.rm = TRUE),
-                           sdSI = mean(sdSI, na.rm = TRUE))
-             %>% mutate(cutoff = "pooled")
-)
-
 si2 <- (si
-        #Replace missing pooled with new estimates
-        %>% replace_join(missPool, BY = c("runID", "label", "clustMethod", "cutoff"))
         #Reorder label
         #Renaming incorrect columns
         %>% mutate(label = factor(label, levels = c("Baseline", "LowN", "HighN",
                                                     "LowR", "HighR", "LowMR",
-                                                    "HighMR", "LowGIV", "HighGIV",
-                                                    "LowGIM", "HighGIM"),
+                                                    "HighMR", "LowGV", "HighGV",
+                                                    "LowGM", "HighGM"),
                                   labels = c("Baseline", "LowN", "HighN",
                                              "LowR", "HighR", "LowMR",
                                              "HighMR", "LowGV", "HighGV",
                                              "LowGM", "HighGM")),
-                   meanSI = ifelse(is.na(meanSI), mean, meanSI),
-                   medianSI = ifelse(is.na(medianSI), median, medianSI),
-                   sdSI = ifelse(is.na(sdSI), sd, sdSI),
-                   meanDiff = meanSI - obsMean,
-                   medianDiff = medianSI - obsMedian,
-                   sdDiff = sdSI - obsSD,
                    obsCV = obsMean / obsSD,
                    cvSI = meanSI / sdSI,
                    relMeanDiff = meanDiff/obsMean,
                    relMedianDiff = medianDiff/obsMean,
                    relSDDiff = sdDiff / obsSD)
-        %>% select(-mean, -median, -sd)
         %>% filter(!label %in% c("LowGM", "HighGM"))
 )
 
