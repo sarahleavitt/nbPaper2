@@ -142,7 +142,7 @@ ggplot(data = resMassCov2C) +
   scale_y_continuous(name = "Number of Case Pairs") +
   scale_x_continuous(name = "Relative Transmission Probability") +
   facet_zoom(ylim = c(0, 300)) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   theme(legend.position = "bottom",
         legend.title = element_blank(),
         axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
@@ -249,6 +249,26 @@ ggplot(data = siAllLongPlot, aes(x = as.numeric(cutoff), y = est, color = label2
          width = 7, height = 7, units = "in", dpi = 300)
 
 
+## PRESENTATION VERSION ##
+ggplot(data = siAllLongPlot, aes(x = as.numeric(cutoff), y = est, color = label2)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = cilb, ymax = ciub, width = width)) +
+  geom_hline(data = siAllLongPooled, aes(yintercept = est, color = label2)) +
+  geom_hline(data = siAllLongPooled, aes(yintercept = cilb, color = label2), linetype = "dotted") +
+  geom_hline(data = siAllLongPooled, aes(yintercept = ciub, color = label2), linetype = "dotted") +
+  facet_grid(Parameter~clustMethod, scales = "free") +
+  scale_x_continuous(name = "Clustering Cutoff/Binwidth") +
+  scale_y_continuous(name = "Estimate in Years") +
+  theme_bw(base_size = 16) +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
+  guides(color = guide_legend(nrow = 2, byrow = FALSE)) +
+  ggsave(file = "../Figures/MassSI_pres.png",
+         width = 7, height = 7.5, units = "in", dpi = 300)
+
+
 
 ################### Reproductive Number ######################
 
@@ -287,6 +307,29 @@ ggplot(data = RtData2, aes(x = timeRank, y = Rt)) +
         axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0),
                                     size = 12)) +
   ggsave(file = "../Figures/MassRt.png",
+         width = 8, height = 6, units = "in", dpi = 300)
+
+
+## PRESENTATION VERSION ##
+ggplot(data = RtData2, aes(x = timeRank, y = Rt)) +
+  geom_point() +
+  geom_line() +
+  geom_errorbar(aes(ymin = ciLower, ymax = ciUpper), width = 0.7, color = "grey40") +
+  scale_y_continuous(name = "Monthly Effective Reproductive Number") + 
+  scale_x_continuous(name = "Year of Observation", breaks = seq(3, 89, 12),
+                     labels = seq(2010, 2017, 1)) +
+  geom_vline(aes(xintercept = monthCut1), linetype = "dotted", size = 0.7) +
+  geom_vline(aes(xintercept = monthCut2), linetype = "dotted", size = 0.7) +
+  geom_hline(data = RtAvg2, aes(yintercept = RtAvg), size = 0.7) +
+  theme_bw(base_size = 16) +
+  geom_hline(data = RtAvg2, aes(yintercept = ciLower), linetype = "dashed",
+             size = 0.5, color = "grey40") +
+  geom_hline(data = RtAvg2, aes(yintercept = ciUpper), linetype = "dashed",
+             size = 0.5, color = "grey40") +
+  theme(panel.grid.minor = element_blank(),
+        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
+  ggsave(file = "../Figures/MassRt_pres.png",
          width = 8, height = 6, units = "in", dpi = 300)
 
 

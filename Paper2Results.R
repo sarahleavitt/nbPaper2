@@ -7,7 +7,7 @@
 # generation interval estimation paper
 ################################################################################
 
-rm(list = ls())
+#rm(list = ls())
 options(scipen=999)
 setwd("~/Boston University/Dissertation/nbPaper2")
 
@@ -86,7 +86,7 @@ trainingID <- (covarInd
                %>% pull(individualID)
 )
 
-covarOrderedPair <- (covarPair
+orderedPair <- (covarPair
                      %>% filter(infectionDate.2 > infectionDate.1)
                      %>% mutate(snpClose = ifelse(snpDist < lowerT, TRUE,
                                            ifelse(snpDist > upperT, FALSE, NA)),
@@ -96,34 +96,30 @@ covarOrderedPair <- (covarPair
 )
 
 
-resGen <- nbProbabilities(orderedPair = covarOrderedPair, indIDVar = "individualID",
+resGen <- nbProbabilities(orderedPair = orderedPair, indIDVar = "individualID",
                           pairIDVar = "edgeID", goldStdVar = "snpCloseGS",
                           covariates = c("Y1", "Y2", "Y3", "Y4"), label = "NoTime",
                           n = 10, m = 1, nReps = 10)
-nbResults <- resGen[[1]] %>% full_join(covarOrderedPair, by = "edgeID")
+nbResults <- resGen[[1]] %>% full_join(orderedPair, by = "edgeID")
 print("Completed SNP threshold gold standard analysis")
-
-saveRDS(nbResults, "../Datasets/ClustExample.rds")
 
 
 
 #### Clustering infectors ####
 
-#nbResults <- readRDS("../Datasets/ClustExample.rds")
-
 clustRes <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
                           clustMethod = "hc_absolute", cutoff = 0.05)
 
-#Finding good example cases
-ggplot(data = clustRes %>% filter(individualID.2 >= 10070, individualID.2 <= 10099),
-       aes(x = pRank, y = pScaled, color = cluster, shape = transmission)) +
-  geom_point() +
-  facet_wrap(~individualID.2, scales = "free") +
-  theme(legend.position = "none")
+# #Finding good example cases
+# ggplot(data = clustRes %>% filter(individualID.2 >= 10010, individualID.2 <= 10050),
+#        aes(x = pRank, y = pScaled, color = cluster, shape = transmission)) +
+#   geom_point() +
+#   facet_wrap(~individualID.2, scales = "free") +
+#   theme(legend.position = "none")
 
-examples <- clustRes %>% filter(individualID.2 %in% c(10090, 10089))
-ind1 <- examples %>% filter(individualID.2 == 10090) %>% arrange(pRank)
-ind2 <- examples %>% filter(individualID.2 == 10089) %>% arrange(pRank)
+examples <- clustRes %>% filter(individualID.2 %in% c(10047, 10039))
+ind1 <- examples %>% filter(individualID.2 == 10047) %>% arrange(pRank)
+ind2 <- examples %>% filter(individualID.2 == 10039) %>% arrange(pRank)
 
 ggplot(data = examples, aes(x = pRank, y = pScaled, color = cluster, shape = transmission)) +
   geom_jitter() +
@@ -162,7 +158,7 @@ p1c <- ggplot(data = ind1, aes(x = pRank, y = pScaled, color = cluster)) +
   xlab("Probability Rank") +
   ylab("Relative Probability") +
   scale_color_manual(values = c("#00BFC4", "#F8766D"), drop = FALSE) +
-  theme_bw() +
+  theme_bw(base_size = 14) +
   theme(legend.position = "none") +
   ggtitle("Case A")
 
@@ -171,7 +167,7 @@ p2c <- ggplot(data = ind2, aes(x = pRank, y = pScaled, color = cluster)) +
   xlab("Probability Rank") +
   ylab("Relative Probability") +
   scale_color_manual(values = c("#00BFC4", "#F8766D"), drop = FALSE) +
-  theme_bw() +
+  theme_bw(base_size = 14) +
   theme(legend.position = "none") +
   ggtitle("Case B")
 
@@ -198,29 +194,25 @@ hclustD2 <- (hclustS2
 pHC1 <- ggplot(as.ggdend(hclustD1)) +
   theme_bw() +
   scale_color_manual(values = c("darkgrey", "black", "red")) +
-  scale_x_continuous(limits = c(0, 40)) +
   xlab("Probability Rank") +
   ylab("Height")
 
 pHC2 <- ggplot(as.ggdend(hclustD2)) +
   theme_bw() +
   scale_color_manual(values = c("darkgrey", "black", "red")) +
-  scale_x_continuous(limits = c(0, 90)) +
   xlab("Probability Rank") +
   ylab("Height")
 
 ## COLOR VERSIONS ##
 pHC1c <- ggplot(as.ggdend(hclustD1)) +
-  theme_bw() +
+  theme_bw(base_size = 14) +
   scale_color_manual(values = c("#F8766D", "#00BFC4", "red")) +
-  scale_x_continuous(limits = c(0, 40)) +
   xlab("Probability Rank") +
   ylab("Height")
 
 pHC2c <- ggplot(as.ggdend(hclustD2)) +
-  theme_bw() +
+  theme_bw(base_size = 14) +
   scale_color_manual(values = c("#F8766D", "#00BFC4", "red")) +
-  scale_x_continuous(limits = c(0, 90)) +
   xlab("Probability Rank") +
   ylab("Height")
 
@@ -228,16 +220,16 @@ pHC2c <- ggplot(as.ggdend(hclustD2)) +
 
 #### Plot of densities ####
 
-pKD1 <- findClustersKD(df = ind1, pVar = "pScaled", cutoff = 0.01, plot = TRUE,
-                       colors = c("black", "darkgrey"))
-pKD2 <- findClustersKD(df = ind2, pVar = "pScaled", cutoff = 0.01, plot = TRUE,
-                       colors = c("black", "darkgrey"))
+pKD1 <- findClustersKD(df = ind1, pVar = "pScaled", cutoff = 0.02, plot = TRUE,
+                       colors = c("black", "darkgrey"), size = 12)
+pKD2 <- findClustersKD(df = ind2, pVar = "pScaled", cutoff = 0.02, plot = TRUE,
+                       colors = c("black", "darkgrey"), size = 12)
 
 ## COLOR VERSIONS ##
-pKD1c <- findClustersKD(df = ind1, pVar = "pScaled", cutoff = 0.01, plot = TRUE,
-                        colors = c("#00BFC4", "#F8766D"))
-pKD2c <- findClustersKD(df = ind2, pVar = "pScaled", cutoff = 0.01, plot = TRUE,
-                        colors = c("#00BFC4", "#F8766D"))
+pKD1c <- findClustersKD(df = ind1, pVar = "pScaled", cutoff = 0.02, plot = TRUE,
+                        colors = c("#00BFC4", "#F8766D"), size = 14)
+pKD2c <- findClustersKD(df = ind2, pVar = "pScaled", cutoff = 0.02, plot = TRUE,
+                        colors = c("#00BFC4", "#F8766D"), size = 14)
 
 
 
@@ -326,12 +318,29 @@ ggplot(data = plotData1, aes(y = absDiff, x = probf,
   scale_color_grey(start = 0.3, end = 0.7) +
   theme_bw() +
   theme(legend.position = "bottom",
-        axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
-        axis.text.y = element_text(size = 10),
+        axis.text.x = element_text(angle = 45, hjust = 1),
         axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
         axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
   ggsave(file = "../Figures/GIResults.png",
          width = 7, height = 7, units = "in", dpi = 300)
+
+
+## COLOR VERSION ##
+ggplot(data = plotData1, aes(y = absDiff, x = probf,
+                             fill = Parameter, color = Parameter)) +
+  facet_wrap(~label) +
+  geom_violin(alpha = 0.7, draw_quantiles = 0.5) +
+  geom_hline(yintercept = 0) +
+  scale_y_continuous(name = "Absolute Bias in Days", limits = c(-15, 15)) +
+  scale_x_discrete(name = "Generation Interval Estimation Method") +
+  theme_bw(base_size = 16) +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
+  ggsave(file = "../Figures/GIResults_color.png",
+         width = 7, height = 8, units = "in", dpi = 300)
+
 
 
 #### Figure: MAPE Plot ####
@@ -361,8 +370,7 @@ pErrorHC <- ggplot(data = errorL %>% filter(grepl("^HC", prob),
              aes(yintercept = error, color = Parameter)) +
   theme_bw() +
   theme(legend.position = "bottom",
-        axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
-        axis.text.y = element_text(size = 10),
+        axis.text.x = element_text(angle = 45, hjust = 1),
         axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
         axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)))
 
@@ -379,8 +387,7 @@ pErrorKD <- ggplot(data = errorL %>% filter(grepl("^KD", prob),
              aes(yintercept = error, color = Parameter)) +
   theme_bw() +
   theme(legend.position = "bottom",
-        axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
-        axis.text.y = element_text(size = 10),
+        axis.text.x = element_text(angle = 45, hjust = 1),
         axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
         axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)))
 
@@ -388,6 +395,48 @@ grid.arrange(pErrorHC, pErrorKD, ncol = 2)
 pError <- arrangeGrob(pErrorHC, pErrorKD, ncol = 2)
 ggsave(file = "../Figures/GIError.png", plot = pError,
        width = 9, height = 7, units = "in", dpi = 300)
+
+
+## COLOR VERSION ##
+pErrorHCc <- ggplot(data = errorL %>% filter(grepl("^HC", prob),
+                                            prob != "HCpooled",
+                                            prob != "HC0"),
+                   aes(x = as.numeric(cutoff), y = error, color = Parameter)) +
+  facet_wrap(~label) +
+  geom_point() +
+  scale_y_continuous(name = "Mean Absolute Percentage Error", limits = c(0, 45)) +
+  scale_x_continuous(name = "Hierarchical Clustering Cutoff") +
+  geom_hline(data = errorL %>% filter(prob == "HCpooled"),
+             aes(yintercept = error, color = Parameter)) +
+  theme_bw(base_size = 16) +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)))
+
+
+pErrorKDc <- ggplot(data = errorL %>% filter(grepl("^KD", prob),
+                                            prob != "KDpooled"),
+                   aes(x = as.numeric(cutoff), y = error, color = Parameter)) +
+  facet_wrap(~label) +
+  geom_point() +
+  scale_y_continuous(name = "Mean Absolute Percentage Error", limits = c(0, 45)) +
+  scale_x_continuous(name = "Kernel Density Estimation Binwidth") +
+  geom_hline(data = errorL %>% filter(prob == "KDpooled"),
+             aes(yintercept = error, color = Parameter)) +
+  theme_bw(base_size = 16) +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)))
+
+grid.arrange(pErrorHCc, pErrorKDc, ncol = 2)
+pErrorc <- arrangeGrob(pErrorHCc, pErrorKDc, ncol = 2)
+ggsave(file = "../Figures/GIError_color.png", plot = pErrorc,
+       width = 9, height = 7, units = "in", dpi = 300)
+
+
 
 
 
