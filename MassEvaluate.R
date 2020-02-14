@@ -142,12 +142,27 @@ ggplot(data = resMassCov2C) +
   scale_y_continuous(name = "Number of Case Pairs") +
   scale_x_continuous(name = "Relative Transmission Probability") +
   facet_zoom(ylim = c(0, 300)) +
-  theme_bw(base_size = 16) +
+  theme_bw() +
   theme(legend.position = "bottom",
         legend.title = element_blank(),
         axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
         axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
   ggsave(file = "../Figures/MassProbs_color.png",
+         width = 8, height = 6, units = "in", dpi = 300)
+
+## PRESENTATION VERSION ##
+ggplot(data = resMassCov2C) +
+  geom_histogram(aes(x = pScaledI2, fill = clusterC),
+                 binwidth = 0.1, position = "dodge") +
+  scale_y_continuous(name = "Number of Case Pairs") +
+  scale_x_continuous(name = "Relative Transmission Probability") +
+  facet_zoom(ylim = c(0, 300)) +
+  theme_bw(base_size = 16) +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
+  ggsave(file = "../Figures/MassProbs_pres.png",
          width = 8, height = 6, units = "in", dpi = 300)
   
 

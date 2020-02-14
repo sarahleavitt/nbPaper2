@@ -51,6 +51,11 @@ This is a shell script that runs SimQsubSIFull.qsub which runs
 PerformSimulationSIFull.R with 9 different scenarios varying the 9 different input 
 parameters.
 
+### ClusteringExample.R
+
+This program simulates a mini outbreak and pulls out two example cases - one with a top
+cluster of infectors and one without a top cluster of infectors to create the clustering
+example figure.
 
 ### Paper2Results.R
 
