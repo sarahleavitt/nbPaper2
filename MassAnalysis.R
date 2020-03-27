@@ -7,8 +7,8 @@
 # reproductive number for the Mass DPH data using the NB transmission method.
 # The data are cleaned in MassPrep.R.
 
-# NOTE: Program takes around 3 hours to run completely. The best way is to run
-# the first section and then the next two sections as local jobs in parallel.
+# NOTE: Program takes around XX hours to run completely.
+# Best to run using MassQsub.qsub and run on the cluster
 ################################################################################
 
 
@@ -69,7 +69,7 @@ covariates <- c("Sex", "Age", "CountryOfBirth", "County", "Smear", "AnyImmunoSup
 
 resMass <- nbProbabilities(orderedPair = orderedMass, indIDVar = "StudyID", pairIDVar = "EdgeID",
                            goldStdVar = "ContactTrain", covariates = covariates,
-                           label = "ContactTime", l = 0.5, n = 10, m = 1, nReps = 20)
+                           label = "ContactTime", l = 0.5, n = 10, m = 1, nReps = 50)
 
 resMassCov <- (orderedMass
                %>% full_join(resMass$probabilities, by = "EdgeID")
@@ -92,7 +92,7 @@ covariates2 <- c("Sex", "Age", "CountryOfBirth", "County", "Smear", "AnyImmunoSu
 
 resMass2 <- nbProbabilities(orderedPair = orderedMass, indIDVar = "StudyID", pairID = "EdgeID",
                             goldStdVar = "ContactTrain", covariates = covariates2,
-                            label = "ContactNoTime", l = 0.5, n = 10, m = 1, nReps = 20)
+                            label = "ContactNoTime", l = 0.5, n = 10, m = 1, nReps = 50)
 
 resMassCov2 <- (orderedMass
                 %>% full_join(resMass2$probabilities, by = c("EdgeID"))
@@ -170,7 +170,6 @@ siKDI1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
                    clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
                    initialPars = c(1.2, 2), shift = 0, bootSamples = 1000)
 siKDI1$label <- "KD: Recent Arrival = 1 Year"
-
 
 siAll <- bind_rows(siHC, siHC1, siHC3, siKD, siKD1, siKD3, siHCI1, siKDI1)
 

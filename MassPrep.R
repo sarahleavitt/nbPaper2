@@ -234,9 +234,12 @@ massPair <- (pairs2
              %>% unite(Resistance, ISUSINH, ISUSRIF, ISUSPZA, ISUSEMB, ISUSSM, ISUSETH,
                        remove = FALSE)
              %>% mutate(SharedRes = str_count(Resistance, "R-R"),
-                        SharedResG = ifelse(SharedRes >= 3, "3+", as.character(SharedRes)),
-                        SharedResG = factor(SharedResG, levels = c("0", "1", "2", "3+")))
+                        SharedResG = ifelse(SharedRes >= 3, "3+",
+                                     ifelse(!grepl("R", Resistance), "S", as.character(SharedRes))),
+                        SharedResG = factor(SharedResG, levels = c("S", "0", "1", "2", "3+")))
 )
+table(massPair$SharedResG)
+100*prop.table(table(massPair$SharedResG))
 
 table(massPair$ContactTrain, useNA = "always")
 
