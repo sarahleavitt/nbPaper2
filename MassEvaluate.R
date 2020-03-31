@@ -48,13 +48,13 @@ orderedMass <- (massPair
 
 ################## Creating Dataset for Maps #################
 
-countyPrev <- (massInd
-               %>% group_by(County)
-               %>% summarize(nCases = n())
-               %>% filter(!is.na(County))
-)
-
-write.csv(countyPrev, "../MA_Map/countyPrev.csv", row.names = FALSE)
+# countyPrev <- (massInd
+#                %>% group_by(County)
+#                %>% summarize(nCases = n())
+#                %>% filter(!is.na(County))
+# )
+# 
+# write.csv(countyPrev, "../MA_Map/countyPrev.csv", row.names = FALSE)
 
 
 
@@ -108,13 +108,13 @@ prop.table(table(orderedMass$Lineage, useNA = "always"))
 
 ################### Assessing Probabilities ###################
 
-#One possible clustering method and cutoff
-resMassCov2C <- clusterInfectors(df = resMassCov2, indIDVar = "StudyID", pVar = "pScaledI2",
-                                 clustMethod = "hc_absolute", cutoff = 0.1)
-
-topClust <- resMassCov2C %>% filter(cluster == 1)
-length(unique(topClust$StudyID.2))
-length(unique(topClust$StudyID.2)) / length(unique(resMassCov2C$StudyID.2))
+# #One possible clustering method and cutoff
+# resMassCov2C <- clusterInfectors(df = resMassCov2, indIDVar = "StudyID", pVar = "pScaledI2",
+#                                  clustMethod = "hc_absolute", cutoff = 0.1)
+# 
+# topClust <- resMassCov2C %>% filter(cluster == 1)
+# length(unique(topClust$StudyID.2))
+# length(unique(topClust$StudyID.2)) / length(unique(resMassCov2C$StudyID.2))
 
 
 #### Figure: Plot of Probabilities Colored by Cluster ####
@@ -175,13 +175,18 @@ ggplot(data = resMassCov2C) +
 formatSITable <- function(siTable){
   siTable2 <- (siTable
                %>% mutate(npIncluded = paste0(nIndividuals, " (",
-                                              100 * round(pCluster, 3), ")"),
-                          mean = paste0(round(meanSI, 2), " (", round(meanCILB, 2),
-                                        ", ", round(meanCIUB, 2), ")"),
-                          median = paste0(round(medianSI, 2), " (", round(medianCILB, 2),
-                                          ", ", round(medianCIUB, 2), ")"),
-                          sd = paste0(round(sdSI, 2), " (", round(sdCILB, 2),
-                                      ", ", round(sdCIUB, 2), ")"))
+                                              sprintf("%.1f", 100 * round(pCluster, 3)), ")"),
+                          mean = paste0(sprintf("%.2f", round(meanSI, 2)), " (",
+                                        sprintf("%.2f", round(meanCILB, 2)), ", ",
+                                        sprintf("%.2f", round(meanCIUB, 2)), ")"),
+                          median = paste0(sprintf("%.2f", round(medianSI, 2)), " (",
+                                          sprintf("%.2f", round(medianCILB, 2)), ", ",
+                                          sprintf("%.2f", round(medianCIUB, 2)), ")"),
+                          sd = paste0(sprintf("%.2f", round(sdSI, 2)), " (",
+                                      sprintf("%.2f", round(sdCILB, 2)), ", ",
+                                      sprintf("%.2f", round(sdCIUB, 2)), ")"),
+                          cutoff = ifelse(cutoff != "pooled", sprintf("%.3f", as.numeric(cutoff)),
+                                          cutoff))
                %>% select(label, cutoff, npIncluded, mean, median, sd)
   )
   return(siTable2)
