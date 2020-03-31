@@ -7,7 +7,7 @@
 #################################################################################
 
 setwd("~/Boston University/Dissertation/nbPaper2")
-rm(list = ls())
+#rm(list = ls())
 set.seed(103020)
 
 library(dplyr)
@@ -84,13 +84,15 @@ massInd2 <- (massInd
                         CombinedY = year(CombinedDt),
                         RecentArrival2 = as.numeric(CombinedY) - YearOfArrival <= 2,
                         RecentArrival1 = as.numeric(CombinedY) - YearOfArrival <= 1,
-                        MIRUComb = paste0(MIRU, MIRU2))
+                        MIRUComb = paste0(MIRU, MIRU2),
+                        DSTB = ifelse(ISUSINH != "R" & ISUSRIF != "R" & ISUSPZA != "R" &
+                                      ISUSEMB != "R" & ISUSSM != "R" & ISUSETH != "R", TRUE, FALSE))
              %>% replace_with_na(list(MIRUComb = "NANA"))
              %>% full_join(massContacts, by = "StudyID")
              %>% select(StudyID, SuspectDt, CountedDt, CombinedDt, CombinedY, County = COUNTY,
                         Sex = SEX, Age, Spoligotype, MIRU, MIRU2, MIRUComb, GENType, PCRType,
                         Lineage = `Genotyping Lineage`, CountryOfBirth = `Country of birth`,
-                        USBorn, YearOfArrival, RecentArrival1, RecentArrival2,
+                        USBorn, YearOfArrival, RecentArrival1, RecentArrival2, DSTB,
                         ISUSINH, ISUSRIF, ISUSPZA, ISUSEMB, ISUSSM, ISUSETH, Smear, Culture,
                         AnyImmunoSup = `Any ImmunoSupression`, Contact = `Linked Case1`, ContactGroup,
                         HaveContInv = `Contact Investigation Done`, EpiLinkFound)
@@ -153,7 +155,9 @@ massPair <- (pairs2
                            suffix = c(".1", ".2"))
              #Defining pair-level covariates
              %>% mutate(CombinedDiff = as.numeric(difftime(CombinedDt.2, CombinedDt.1, units = "days")),
-                        CombinedDiffY = ifelse(CombinedDiff == 0, 1/365, CombinedDiff/ 365),
+                        CombinedDiffM = round(CombinedDiff / 30, 0),
+                        CombinedDiffY = CombinedDiff / 365,
+                        CombinedDiffYM = CombinedDiffM / 12,
                         Lineage = Lineage.1 == Lineage.2,
                         Lineage = factor(Lineage, levels = c(FALSE, TRUE),
                                          labels = c("Different", "Same")),

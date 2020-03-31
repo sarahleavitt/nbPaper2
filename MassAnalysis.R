@@ -41,9 +41,9 @@ orderedMass <- (massPair
                            RecentArrival2.1, RecentArrival2.2, County, Sex, Age, Spoligotype,
                            MIRUDiff, MIRUDiffG, GENType, PCRType, Lineage, CountryOfBirth,
                            Smear, SharedResG, AnyImmunoSup, TimeCat, CombinedDiff, CombinedDiffY,
-                           ContactTrain)
+                           CombinedDiffYM, ContactTrain)
                 #Creating a gold standard based on the GenType
-                #If the difference in time is 0, setting it to 15 days (half a month)
+                #Creating a EdgeID where order doesn't matter
                 %>% mutate(miruLink = ifelse(GENType == "Same" & County == "Same", TRUE,
                                              ifelse(MIRUDiffG == "4+", FALSE, NA)))
 )
@@ -118,60 +118,59 @@ saveRDS(resMassCov2, "../Datasets/MassResults_NoTime.rds")
 
 ###################### Serial Interval ########################
 
-resMassCov2 <- resMassCov2 %>% mutate(CombinedDiffY = ifelse(CombinedDiffY == 0, 15/365, CombinedDiffY))
-
-siHC <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
-                  timeDiffVar = "CombinedDiffY", pVar = "pScaledI2",
-                  clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
-                  initialPars = c(1.2, 2), shift = 0, bootSamples = 1000)
-siHC$label <- "HC: No exclusions"
 
 siHC1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
-                   timeDiffVar = "CombinedDiffY", pVar = "pScaledI2",
-                   clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
-                   initialPars = c(1.2, 2), shift = 1/12, bootSamples = 1000)
+                  timeDiffVar = "CombinedDiffYM", pVar = "pScaledI2",
+                  clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
+                  initialPars = c(1.2, 2), shift = 0, bootSamples = 1000)
 siHC1$label <- "HC: Excluding 1-month co-prevalent cases"
 
+siHC2 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
+                   timeDiffVar = "CombinedDiffYM", pVar = "pScaledI2",
+                   clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
+                   initialPars = c(1.2, 2), shift = 1/12, bootSamples = 1000)
+siHC2$label <- "HC: Excluding 2-month co-prevalent cases"
+
 siHC3 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
-                     timeDiffVar = "CombinedDiffY", pVar = "pScaledI2",
+                     timeDiffVar = "CombinedDiffYM", pVar = "pScaledI2",
                      clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
-                     initialPars = c(1.2, 2), shift = 3/12, bootSamples = 1000)
+                     initialPars = c(1.2, 2), shift = 2/12, bootSamples = 1000)
 siHC3$label <- "HC: Excluding 3-month co-prevalent cases"
 
 
-siKD <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
-                   timeDiffVar = "CombinedDiffY", pVar = "pScaledI2",
+siKD1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
+                   timeDiffVar = "CombinedDiffYM", pVar = "pScaledI2",
                    clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
                    initialPars = c(1.2, 2), shift = 0, bootSamples = 1000)
-siKD$label <- "KD: No exclusions"
-
-siKD1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
-                    timeDiffVar = "CombinedDiffY", pVar = "pScaledI2",
-                    clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
-                    initialPars = c(1.2, 2), shift = 1/12, bootSamples = 1000)
 siKD1$label <- "KD: Excluding 1-month co-prevalent cases"
 
-siKD3 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
-                    timeDiffVar = "CombinedDiffY", pVar = "pScaledI2",
+siKD2 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
+                    timeDiffVar = "CombinedDiffYM", pVar = "pScaledI2",
                     clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
-                    initialPars = c(1.2, 2), shift = 3/12, bootSamples = 1000)
+                    initialPars = c(1.2, 2), shift = 1/12, bootSamples = 1000)
+siKD2$label <- "KD: Excluding 2-month co-prevalent cases"
+
+siKD3 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
+                    timeDiffVar = "CombinedDiffYM", pVar = "pScaledI2",
+                    clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
+                    initialPars = c(1.2, 2), shift = 2/12, bootSamples = 1000)
 siKD3$label <- "KD: Excluding 3-month co-prevalent cases"
 
 
 #Sensitivity analysis for recent immigration definition
 siHCI1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
-                   timeDiffVar = "CombinedDiffY", pVar = "pScaledI1",
+                   timeDiffVar = "CombinedDiffYM", pVar = "pScaledI1",
                    clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
                    initialPars = c(1.2, 2), shift = 0, bootSamples = 1000)
 siHCI1$label <- "HC: Recent Arrival = 1 Year"
 
 siKDI1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
-                   timeDiffVar = "CombinedDiffY", pVar = "pScaledI1",
+                   timeDiffVar = "CombinedDiffYM", pVar = "pScaledI1",
                    clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
                    initialPars = c(1.2, 2), shift = 0, bootSamples = 1000)
 siKDI1$label <- "KD: Recent Arrival = 1 Year"
 
-siAll <- bind_rows(siHC, siHC1, siHC3, siKD, siKD1, siKD3, siHCI1, siKDI1)
+siAll <- bind_rows(siHC1, siHC2, siHC3, siKD1, siKD2, siKD3, siHCI1, siKDI1)
 
 #Saving the serial interval dataset
 saveRDS(siAll, "../Datasets/MassSI.rds")
