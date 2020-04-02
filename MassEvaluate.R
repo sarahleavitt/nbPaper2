@@ -108,13 +108,13 @@ prop.table(table(orderedMass$Lineage, useNA = "always"))
 
 ################### Assessing Probabilities ###################
 
-# #One possible clustering method and cutoff
-# resMassCov2C <- clusterInfectors(df = resMassCov2, indIDVar = "StudyID", pVar = "pScaledI2",
-#                                  clustMethod = "hc_absolute", cutoff = 0.1)
-# 
-# topClust <- resMassCov2C %>% filter(cluster == 1)
-# length(unique(topClust$StudyID.2))
-# length(unique(topClust$StudyID.2)) / length(unique(resMassCov2C$StudyID.2))
+#One possible clustering method and cutoff
+resMassCov2C <- clusterInfectors(df = resMassCov2, indIDVar = "StudyID", pVar = "pScaledI2",
+                                 clustMethod = "hc_absolute", cutoff = 0.1)
+
+topClust <- resMassCov2C %>% filter(cluster == 1)
+length(unique(topClust$StudyID.2))
+length(unique(topClust$StudyID.2)) / length(unique(resMassCov2C$StudyID.2))
 
 
 #### Figure: Plot of Probabilities Colored by Cluster ####
@@ -206,9 +206,13 @@ siKD <- formatSITable(siAll %>% filter(clustMethod == "kd",
 #Creating alternative label
 siAll <- siAll %>% mutate(label2 = gsub("[A-Z]{2}: ", "", label),
                           label2 = factor(label2, levels = c("Excluding 3-month co-prevalent cases",
+                                                             "Excluding 2-month co-prevalent cases",
                                                              "Excluding 1-month co-prevalent cases",
-                                                             "No exclusions",
-                                                             "Recent Arrival = 1 Year")))
+                                                             "Recent Arrival = 1 Year"),
+                                          labels = c("Serial interval greater than 2 months",
+                                                     "Serial interval greater than 1 month",
+                                                     "No serial interval restriction",
+                                                     "Recent Arrival = 1 Year")))
 
 ## Creating long dataset ##
 meanDf <- (siAll
@@ -246,7 +250,8 @@ siAllLong2 <- (siAllLong
 #### Figure: Plot of Serial Interval Estimates with CIs ####
 siAllLongPlot <- siAllLong2 %>% filter(cutoff != "pooled", !grepl("Recent", label2))
 siAllLongPooled <- siAllLong2 %>% filter(cutoff == "pooled", !grepl("Recent", label2))
-ggplot(data = siAllLongPlot, aes(x = as.numeric(cutoff), y = est, color = label2)) +
+ggplot(data = siAllLongPlot, aes(x = as.numeric(cutoff), y = est,
+                                 color = label2, shape = label2)) +
   geom_point() +
   geom_errorbar(aes(ymin = cilb, ymax = ciub, width = width)) +
   geom_hline(data = siAllLongPooled, aes(yintercept = est, color = label2)) +
@@ -270,7 +275,8 @@ ggplot(data = siAllLongPlot, aes(x = as.numeric(cutoff), y = est, color = label2
 
 
 ## PRESENTATION VERSION ##
-ggplot(data = siAllLongPlot, aes(x = as.numeric(cutoff), y = est, color = label2)) +
+ggplot(data = siAllLongPlot, aes(x = as.numeric(cutoff), y = est,
+                                 color = label2, shape = label2)) +
   geom_point() +
   geom_errorbar(aes(ymin = cilb, ymax = ciub, width = width)) +
   geom_hline(data = siAllLongPooled, aes(yintercept = est, color = label2)) +
@@ -361,14 +367,18 @@ ggplot(data = RtData2, aes(x = timeRank, y = Rt)) +
 
 siSensLong <- (siAllLong2
                %>% filter(cutoff != "pooled",
-                          label2 %in% c("No exclusions", "Recent Arrival = 1 Year"))
-               %>% mutate(label2 = ifelse(label2 == "No exclusions", "Recent Arrival = 2 Years",
+                          label2 %in% c("No serial interval restriction",
+                                        "Recent Arrival = 1 Year"))
+               %>% mutate(label2 = ifelse(label2 == "No serial interval restriction",
+                                          "Recent Arrival = 2 Years",
                                           as.character(label2)))
 )
 siSensLongPooled <- (siAllLong2
                      %>% filter(cutoff == "pooled",
-                                label2 %in% c("No exclusions", "Recent Arrival = 1 Year"))
-                     %>% mutate(label2 = ifelse(label2 == "No exclusions", "Recent Arrival = 2 Years",
+                                label2 %in% c("No serial interval restriction",
+                                              "Recent Arrival = 1 Year"))
+                     %>% mutate(label2 = ifelse(label2 == "No serial interval restriction",
+                                                "Recent Arrival = 2 Years",
                                                 as.character(label2)))
 )
 
