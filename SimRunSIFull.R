@@ -184,8 +184,7 @@ siMethods <- function(allProbs, allProbs2, shift, initialPars, dateVar){
   siParsHC0 <- estimateSI(df = allProbs, indIDVar = "individualID",
                           timeDiffVar = dateVar, pVar = "pScaled",
                           clustMethod = "hc_absolute", cutoffs = 0,
-                          shift = shift, initialPars = initialPars,
-                          bootSamples = bootSamples)
+                          shift = shift, initialPars = initialPars)
   
   siParsHC <- dplyr::bind_rows(siParsHC, siParsHC0)
   siParsHC$prob <- ifelse(siParsHC$clustMethod == "pooled", "HCpooled",

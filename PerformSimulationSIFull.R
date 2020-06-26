@@ -31,7 +31,7 @@ argv <- commandArgs(trailingOnly = TRUE)
 #Finding the task number for the run
 iTask <- as.numeric(Sys.getenv("SGE_TASK_ID"))
 #The number of simulations per split
-nSim <- 50
+nSim <- 40
 
 ## Parameters to change ##
 sampleSize <- as.numeric(argv[1])
@@ -52,7 +52,7 @@ iPar2 <- as.numeric(argv[9])
 # #setwd("~/Boston University/Dissertation/nbPaper2")
 # setwd("~/nbPaper2")
 # iTask <- 1
-# nSim <- 2
+# nSim <- 1
 # 
 # ## Parameters to change ##
 # sampleSize <- 100
@@ -66,8 +66,6 @@ iPar2 <- as.numeric(argv[9])
 # upperT <- 7
 # iPar1 <- 3
 # iPar2 <- 4
-
-
  
 load_all("../nbTransmission")
 source("../nbSimulation/SimOutbreak.R")

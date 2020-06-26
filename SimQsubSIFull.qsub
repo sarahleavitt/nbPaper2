@@ -4,7 +4,7 @@
 #$ -P sv-thesis
 
 #Time limit
-#$ -l h_rt=24:00:00
+#$ -l h_rt=72:00:00
 
 #Name a job
 #$ -N Simulation
@@ -19,7 +19,7 @@
 ##$-o SimLog
 
 #This line runs the set of nSim simulations this many times
-#$-t 1-20
+#$-t 1-25
 
 #Other options that were in script from JB
 #$-l mem_per_core=8G
