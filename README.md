@@ -60,7 +60,7 @@ example figure.
 ### Paper2Results.R
 
 This program reads in all of the results from the the simulation scenarios and then 
-calculates all results used in Leavitt et al. ???? including values in the text,
+calculates all results including values in the text,
 tables and figures.
 
 
@@ -87,11 +87,4 @@ training with contact data. It then estimates the serial interval both including
 all cases and excluding one-month co-prevelant cases with 95% confidence intervals 
 and the monthly and overall average reproductive numbers also with confidence 
 intervals.
-
-
-### HamburgEvaluate.R
-
-This program takes the results saved in HamburgAnalysis.R and creates all results 
-used in Leavitt et al. ???? including values in the text, tables and figures.
-
 

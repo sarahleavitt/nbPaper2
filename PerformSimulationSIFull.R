@@ -48,13 +48,14 @@ iPar2 <- as.numeric(argv[9])
 
 
 #### Interactive Mode ####
-# 
-# setwd("~/Boston University/Dissertation/nbPaper2")
+
+# #setwd("~/Boston University/Dissertation/nbPaper2")
+# setwd("~/nbPaper2")
 # iTask <- 1
 # nSim <- 2
 # 
 # ## Parameters to change ##
-# sampleSize <- 200
+# sampleSize <- 100
 # off.r <- 1.5
 # w.shape <- 2.25
 # w.scale <- 0.0122
@@ -117,6 +118,8 @@ multOutbreaks <- FALSE
 rootseq <- NULL
 length <- 3000
 observationDate <- "infectionDate"
+pTraining <- 0.6
+bootSamples <- 1000
 
 
 ## Derived parameters ##
@@ -131,7 +134,6 @@ if(w.shape*w.scale < 0.25){
 }else{
   dateVar <- "observationDiffY"
 }
-pTraining <- 0.6
 
 
 cat(paste0("Beginning '", label, "' run with sample size = ", sampleSize,
@@ -157,7 +159,6 @@ clustMethod = "hc_absolute"
 cutoffs = 0.05
 shift = 0
 epsilon = 0.0001
-bootSamples = 0
 alpha = 0.05
 
 

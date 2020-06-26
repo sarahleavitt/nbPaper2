@@ -84,6 +84,16 @@ SimRunSI <- function(label, observationDate) {
   print("Completed SNP threshold gold standard analysis")
   
   
+  covariates2 <- c("Y1", "Y2", "Y3", "Y4", "timeCat")
+  resGen2 <- nbProbabilities(orderedPair = covarOrderedPair, indIDVar = "individualID",
+                            pairIDVar = "edgeID", goldStdVar = "snpCloseGS",
+                            covariates = covariates2, label = label,
+                            n = 10, m = 1, nReps = 10)
+  allProbs2 <- resGen2[[1]] %>% full_join(covarOrderedPair, by = "edgeID")
+  
+  print("Completed SNP threshold gold standard analysis with time")
+  
+  
   
   #### Evaluating the performance ####
 
@@ -96,7 +106,8 @@ SimRunSI <- function(label, observationDate) {
   
   #### Estimating the generation interval distribution ####
   
-  siPars <- siMethods(allProbs, shift = shift, initialPars = initialPars, dateVar = dateVar)
+  siPars <- siMethods(allProbs, allProbs2, shift = shift,
+                      initialPars = initialPars, dateVar = dateVar)
   
   
   #### Assessing the results ####
@@ -147,7 +158,7 @@ SimRunSI <- function(label, observationDate) {
 
 #### Function to calculate all of the different SI estimates ####
 
-siMethods <- function(allProbs, shift, initialPars, dateVar){
+siMethods <- function(allProbs, allProbs2, shift, initialPars, dateVar){
   
   ## Constant Cutoff ##
 
@@ -167,12 +178,14 @@ siMethods <- function(allProbs, shift, initialPars, dateVar){
   siParsHC <- estimateSI(df = allProbs, indIDVar = "individualID",
                          timeDiffVar = dateVar, pVar = "pScaled",
                          clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
-                         shift = shift, initialPars = initialPars)
+                         shift = shift, initialPars = initialPars,
+                         bootSamples = bootSamples)
   
   siParsHC0 <- estimateSI(df = allProbs, indIDVar = "individualID",
                           timeDiffVar = dateVar, pVar = "pScaled",
                           clustMethod = "hc_absolute", cutoffs = 0,
-                          shift = shift, initialPars = initialPars)
+                          shift = shift, initialPars = initialPars,
+                          bootSamples = bootSamples)
   
   siParsHC <- dplyr::bind_rows(siParsHC, siParsHC0)
   siParsHC$prob <- ifelse(siParsHC$clustMethod == "pooled", "HCpooled",
@@ -188,10 +201,22 @@ siMethods <- function(allProbs, shift, initialPars, dateVar){
   siParsKD <- estimateSI(df = allProbs, indIDVar = "individualID",
                          timeDiffVar = dateVar, pVar = "pScaled",
                          clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
-                         shift = shift, initialPars = initialPars)
+                         shift = shift, initialPars = initialPars,
+                         bootSamples = bootSamples)
   
   siParsKD$prob <- ifelse(siParsKD$clustMethod == "pooled", "KDpooled",
                           paste0("KD", siParsKD$cutoff))
+  
+  #Including time
+  siParsKDT <- estimateSI(df = allProbs2, indIDVar = "individualID",
+                         timeDiffVar = dateVar, pVar = "pScaled",
+                         clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
+                         shift = shift, initialPars = initialPars,
+                         bootSamples = 0)
+  
+  siParsKDT$prob <- ifelse(siParsKD$clustMethod == "pooled", "KDTpooled",
+                          paste0("KDT", siParsKD$cutoff))
+  siParsKDT$clustMethod <- "kdt"
   
   print("Finished kernel density")
   
@@ -237,7 +262,7 @@ siMethods <- function(allProbs, shift, initialPars, dateVar){
   print("Finished all pairs")
   
   #Combining methods
-  siPars <- bind_rows(siParsA, siParsNa, siParsT, siParsN, siParsHC, siParsKD)
+  siPars <- bind_rows(siParsA, siParsNa, siParsT, siParsN, siParsHC, siParsKD, siParsKDT)
 
   return(siPars)
 }
