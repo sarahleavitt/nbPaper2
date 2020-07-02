@@ -303,6 +303,103 @@ ggplot(data = longData, aes(x = label, y = value)) +
 
 
 
+###################### Extra Results ############################
+
+setwd("~/Boston University/Dissertation/Simulation_ResultsSI_6.30.20")
+
+
+#Initializing dataframes
+si_cov <- NULL
+
+#Reading in the results
+for (file in list.files()){
+  
+  if(grepl("^si", file)){
+    siTemp <- readRDS(file)
+    si_cov <- bind_rows(si_cov, siTemp)
+  }
+}
+
+si_cov <- si_cov %>% mutate(meanInclude = obsMean > meanCILB & obsMean < meanCIUB,
+                            medianInclude = obsMedian > medianCILB & obsMedian < medianCIUB,
+                            sdInclude = obsSD > sdCILB & obsSD < sdCIUB)
+
+
+#### Supplementary Figure: Time as a Covariate ####
+
+plotTime <- (si_cov
+             %>% group_by(prob)
+             %>% filter(clustMethod %in% c("kd", "kdt"))
+             %>% mutate(clustMethodf = factor(clustMethod, levels = c("kd", "kdt"),
+                                              labels = c("Excluding time",
+                                                         "Including time")))
+             %>% summarize(nRuns = sum(!is.na(meanDiff)),
+                           avgNumInd = mean(nIndividuals, na.rm = TRUE),
+                           Mean = 100 * mean(abs(meanDiff / obsMean), na.rm = TRUE),
+                           Median = 100 * mean(abs(medianDiff / obsMedian), na.rm = TRUE),
+                           SD = 100 * mean(abs(sdDiff / obsSD), na.rm = TRUE),
+                           clustMethodf = first(clustMethodf),
+                           cutoff = first(cutoff),
+                           .groups = "drop")
+             %>% select(clustMethodf, cutoff, prob, Mean, Median, SD)
+             %>% gather("Parameter", "error", -prob, -clustMethodf, -cutoff)
+)
+
+ggplot(data = plotTime %>% filter(cutoff != "pooled"),
+       aes(x = as.numeric(cutoff), y = error, color = clustMethodf)) +
+  facet_wrap(~Parameter) +
+  geom_point() +
+  scale_y_continuous(name = "Mean Absolute Percentage Error", limits = c(0, 25)) +
+  scale_x_continuous(name = "Kernel Density Estimation Binwidth") +
+  scale_color_grey(start = 0.3, end = 0.7) +
+  geom_hline(data = plotTime %>% filter(cutoff == "pooled"),
+             aes(yintercept = error, color = clustMethodf)) +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)))
+
+
+
+#### Figure: Coverage plot ####
+
+coverage <- (si_cov
+             %>% filter(clustMethod != "kdt")
+             %>% group_by(prob)
+             %>% summarize(nRuns = sum(!is.na(meanDiff)),
+                           Mean = 100 * sum(meanInclude) / nRuns,
+                           Median = 100 * sum(medianInclude) / nRuns,
+                           SD = 100 * sum(sdInclude) / nRuns,
+                           clustMethod = first(clustMethod),
+                           cutoff = first(cutoff),
+                           .groups = "drop")
+             %>% select(clustMethod, cutoff, prob, Mean, Median, SD)
+             %>% gather("Parameter", "coverage", -prob, -clustMethod, -cutoff)
+             %>% filter(!is.na(coverage))
+             %>% mutate(clustMethodf = factor(clustMethod, levels = c("hc_absolute", "kd"),
+                                              labels = c("Hierarchical Cluster",
+                                                         "Kernel Density Estimation")))
+)
+
+ggplot(data = coverage %>% filter(cutoff != "pooled"),
+                   aes(x = as.numeric(cutoff), y = coverage, color = Parameter)) +
+  geom_point() +
+  facet_wrap(~clustMethodf, scales = "free_x") +
+  scale_y_continuous(name = "Coverage", limits = c(70, 100)) +
+  scale_x_continuous(name = "Clustering Cutoff or Binwdith") +
+  scale_color_grey(start = 0.3, end = 0.7) +
+  geom_hline(data = coverage %>% filter(cutoff == "pooled"),
+             aes(yintercept = coverage, color = Parameter)) +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)))
+
+
+
 
 
 ####################### Supplementary Figures ##########################
