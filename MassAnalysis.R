@@ -42,10 +42,6 @@ orderedMass <- (massPair
                            MIRUDiff, MIRUDiffG, GENType, PCRType, Lineage, CountryOfBirth,
                            Smear, SharedResG, AnyImmunoSup, TimeCat, CombinedDiff, CombinedDiffY,
                            CombinedDiffYM, ContactTrain)
-                #Creating a gold standard based on the GenType
-                #Creating a EdgeID where order doesn't matter
-                %>% mutate(miruLink = ifelse(GENType == "Same" & County == "Same", TRUE,
-                                             ifelse(MIRUDiffG == "4+", FALSE, NA)))
 )
 
 print(table(orderedMass$ContactTrain, useNA = "always"))
@@ -62,6 +58,9 @@ contactPairs <- (orderedMass
 
 
 #### Estimating Probabilities ####
+
+## NOTE BEGIN RUNNING HERE IF YOU ARE USING THE SIMULATED DATASET "orderedMassSim.csv" ##
+#orderedMass <- read.csv("orderedMassSim.csv")
 
 #Estimating the probabilities with time difference
 covariates <- c("Sex", "Age", "CountryOfBirth", "County", "Smear", "AnyImmunoSup",
