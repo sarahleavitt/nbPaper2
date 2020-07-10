@@ -60,7 +60,7 @@ contactPairs <- (orderedMass
 #### Estimating Probabilities ####
 
 ## NOTE BEGIN RUNNING HERE IF YOU ARE USING THE SIMULATED DATASET "orderedMassSim.csv" ##
-#orderedMass <- read.csv("orderedMassSim.csv")
+#orderedMass <- readRDS("orderedMassSim.rds")
 
 #Estimating the probabilities with time difference
 covariates <- c("Sex", "Age", "CountryOfBirth", "County", "Smear", "AnyImmunoSup",
