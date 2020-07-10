@@ -50,10 +50,7 @@ si2 <- (si
                                              "HighMR", "LowGV", "HighGV",
                                              "LowGM", "HighGM")),
                    obsCV = obsMean / obsSD,
-                   cvSI = meanSI / sdSI,
-                   relMeanDiff = meanDiff/obsMean,
-                   relMedianDiff = medianDiff/obsMean,
-                   relSDDiff = sdDiff / obsSD)
+                   cvSI = meanSI / sdSI)
         %>% filter(!label %in% c("LowGM", "HighGM"))
 )
 
@@ -123,7 +120,10 @@ ggplot(data = plotData1, aes(y = absDiff, x = probf,
 
 
 
-#### Figure: MAPE Plot ####
+####################### Supplementary Figures ##########################
+
+
+#### Supplementary Figure: MAPE Plot ####
 
 errorL <- (si2
            %>% group_by(label, prob)
@@ -139,9 +139,9 @@ errorL <- (si2
 )
 
 pErrorHC <- ggplot(data = errorL %>% filter(grepl("^HC", prob),
-                                prob != "HCpooled",
-                                prob != "HC0"),
-       aes(x = as.numeric(cutoff), y = error, color = Parameter)) +
+                                            prob != "HCpooled",
+                                            prob != "HC0"),
+                   aes(x = as.numeric(cutoff), y = error, color = Parameter)) +
   facet_wrap(~label) +
   geom_point() +
   scale_y_continuous(name = "Mean Absolute Percentage Error", limits = c(0, 45)) +
@@ -157,8 +157,8 @@ pErrorHC <- ggplot(data = errorL %>% filter(grepl("^HC", prob),
 
 
 pErrorKD <- ggplot(data = errorL %>% filter(grepl("^KD", prob),
-                                prob != "KDpooled"),
-       aes(x = as.numeric(cutoff), y = error, color = Parameter)) +
+                                            prob != "KDpooled"),
+                   aes(x = as.numeric(cutoff), y = error, color = Parameter)) +
   facet_wrap(~label) +
   geom_point() +
   scale_y_continuous(name = "Mean Absolute Percentage Error", limits = c(0, 45)) +
@@ -180,9 +180,9 @@ ggsave(file = "../Figures/GIError.png", plot = pError,
 
 ## COLOR VERSION ##
 pErrorHCc <- ggplot(data = errorL %>% filter(grepl("^HC", prob),
-                                            prob != "HCpooled",
-                                            prob != "HC0"),
-                   aes(x = as.numeric(cutoff), y = error, color = Parameter)) +
+                                             prob != "HCpooled",
+                                             prob != "HC0"),
+                    aes(x = as.numeric(cutoff), y = error, color = Parameter)) +
   facet_wrap(~label) +
   geom_point() +
   scale_y_continuous(name = "Mean Absolute Percentage Error", limits = c(0, 45)) +
@@ -197,8 +197,8 @@ pErrorHCc <- ggplot(data = errorL %>% filter(grepl("^HC", prob),
 
 
 pErrorKDc <- ggplot(data = errorL %>% filter(grepl("^KD", prob),
-                                            prob != "KDpooled"),
-                   aes(x = as.numeric(cutoff), y = error, color = Parameter)) +
+                                             prob != "KDpooled"),
+                    aes(x = as.numeric(cutoff), y = error, color = Parameter)) +
   facet_wrap(~label) +
   geom_point() +
   scale_y_continuous(name = "Mean Absolute Percentage Error", limits = c(0, 45)) +
@@ -259,9 +259,7 @@ ggsave(file = "../Figures/GIError_pres.png", plot = pErrorp,
 
 
 
-
-
-#### Figure: Performance Metrics ####
+#### Supplementary Figure: Performance Metrics ####
 longData <- (perform
              %>% ungroup()
              %>% mutate(label = factor(label, levels = c("Baseline", "LowN", "HighN",
@@ -303,106 +301,6 @@ ggplot(data = longData, aes(x = label, y = value)) +
 
 
 
-###################### Extra Results ############################
-
-setwd("~/Boston University/Dissertation/Simulation_ResultsSI_6.30.20")
-
-
-#Initializing dataframes
-si_cov <- NULL
-
-#Reading in the results
-for (file in list.files()){
-  
-  if(grepl("^si", file)){
-    siTemp <- readRDS(file)
-    si_cov <- bind_rows(si_cov, siTemp)
-  }
-}
-
-si_cov <- si_cov %>% mutate(meanInclude = obsMean > meanCILB & obsMean < meanCIUB,
-                            medianInclude = obsMedian > medianCILB & obsMedian < medianCIUB,
-                            sdInclude = obsSD > sdCILB & obsSD < sdCIUB)
-
-
-#### Supplementary Figure: Time as a Covariate ####
-
-plotTime <- (si_cov
-             %>% group_by(prob)
-             %>% filter(clustMethod %in% c("kd", "kdt"))
-             %>% mutate(clustMethodf = factor(clustMethod, levels = c("kd", "kdt"),
-                                              labels = c("Excluding time",
-                                                         "Including time")))
-             %>% summarize(nRuns = sum(!is.na(meanDiff)),
-                           avgNumInd = mean(nIndividuals, na.rm = TRUE),
-                           Mean = 100 * mean(abs(meanDiff / obsMean), na.rm = TRUE),
-                           Median = 100 * mean(abs(medianDiff / obsMedian), na.rm = TRUE),
-                           SD = 100 * mean(abs(sdDiff / obsSD), na.rm = TRUE),
-                           clustMethodf = first(clustMethodf),
-                           cutoff = first(cutoff),
-                           .groups = "drop")
-             %>% select(clustMethodf, cutoff, prob, Mean, Median, SD)
-             %>% gather("Parameter", "error", -prob, -clustMethodf, -cutoff)
-)
-
-ggplot(data = plotTime %>% filter(cutoff != "pooled"),
-       aes(x = as.numeric(cutoff), y = error, color = clustMethodf)) +
-  facet_wrap(~Parameter) +
-  geom_point() +
-  scale_y_continuous(name = "Mean Absolute Percentage Error", limits = c(0, 25)) +
-  scale_x_continuous(name = "Kernel Density Estimation Binwidth") +
-  scale_color_grey(start = 0.3, end = 0.7) +
-  geom_hline(data = plotTime %>% filter(cutoff == "pooled"),
-             aes(yintercept = error, color = clustMethodf)) +
-  theme_bw() +
-  theme(legend.position = "bottom",
-        legend.title = element_blank(),
-        axis.text.x = element_text(angle = 45, hjust = 1),
-        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
-        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)))
-
-
-
-#### Figure: Coverage plot ####
-
-coverage <- (si_cov
-             %>% filter(clustMethod != "kdt")
-             %>% group_by(prob)
-             %>% summarize(nRuns = sum(!is.na(meanDiff)),
-                           Mean = 100 * sum(meanInclude) / nRuns,
-                           Median = 100 * sum(medianInclude) / nRuns,
-                           SD = 100 * sum(sdInclude) / nRuns,
-                           clustMethod = first(clustMethod),
-                           cutoff = first(cutoff),
-                           .groups = "drop")
-             %>% select(clustMethod, cutoff, prob, Mean, Median, SD)
-             %>% gather("Parameter", "coverage", -prob, -clustMethod, -cutoff)
-             %>% filter(!is.na(coverage))
-             %>% mutate(clustMethodf = factor(clustMethod, levels = c("hc_absolute", "kd"),
-                                              labels = c("Hierarchical Cluster",
-                                                         "Kernel Density Estimation")))
-)
-
-ggplot(data = coverage %>% filter(cutoff != "pooled"),
-                   aes(x = as.numeric(cutoff), y = coverage, color = Parameter)) +
-  geom_point() +
-  facet_wrap(~clustMethodf, scales = "free_x") +
-  scale_y_continuous(name = "Coverage", limits = c(70, 100)) +
-  scale_x_continuous(name = "Clustering Cutoff or Binwdith") +
-  scale_color_grey(start = 0.3, end = 0.7) +
-  geom_hline(data = coverage %>% filter(cutoff == "pooled"),
-             aes(yintercept = coverage, color = Parameter)) +
-  theme_bw() +
-  theme(legend.position = "bottom",
-        axis.text.x = element_text(angle = 45, hjust = 1),
-        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
-        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)))
-
-
-
-
-
-####################### Supplementary Figures ##########################
 
 suppPlots <- (si2
               %>% select(label, prob, Mean = meanDiff, Median = medianDiff, SD = sdDiff)
@@ -498,3 +396,105 @@ ggplot(data = sumScenario %>% filter(grepl("^KD", prob)),
   scale_x_discrete(name = "Cutoff Value") +
   theme(legend.position = "bottom",
         axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
+
+
+
+
+
+###################### Extra Results ############################
+
+setwd("~/Boston University/Dissertation/Simulation_ResultsSI_6.30.20")
+
+
+#Initializing dataframes
+si_cov <- NULL
+
+#Reading in the results
+for (file in list.files()){
+  
+  if(grepl("^si", file)){
+    siTemp <- readRDS(file)
+    si_cov <- bind_rows(si_cov, siTemp)
+  }
+}
+
+si_cov <- si_cov %>% mutate(meanInclude = obsMean > meanCILB & obsMean < meanCIUB,
+                            medianInclude = obsMedian > medianCILB & obsMedian < medianCIUB,
+                            sdInclude = obsSD > sdCILB & obsSD < sdCIUB)
+
+
+#### Extra Figure: Time as a Covariate ####
+
+plotTime <- (si_cov
+             %>% group_by(prob)
+             %>% filter(clustMethod %in% c("kd", "kdt"))
+             %>% mutate(clustMethodf = factor(clustMethod, levels = c("kd", "kdt"),
+                                              labels = c("Excluding time",
+                                                         "Including time")))
+             %>% summarize(nRuns = sum(!is.na(meanDiff)),
+                           avgNumInd = mean(nIndividuals, na.rm = TRUE),
+                           Mean = 100 * mean(abs(meanDiff / obsMean), na.rm = TRUE),
+                           Median = 100 * mean(abs(medianDiff / obsMedian), na.rm = TRUE),
+                           SD = 100 * mean(abs(sdDiff / obsSD), na.rm = TRUE),
+                           clustMethodf = first(clustMethodf),
+                           cutoff = first(cutoff),
+                           .groups = "drop")
+             %>% select(clustMethodf, cutoff, prob, Mean, Median, SD)
+             %>% gather("Parameter", "error", -prob, -clustMethodf, -cutoff)
+)
+
+ggplot(data = plotTime %>% filter(cutoff != "pooled"),
+       aes(x = as.numeric(cutoff), y = error, color = clustMethodf)) +
+  facet_wrap(~Parameter) +
+  geom_point() +
+  scale_y_continuous(name = "Mean Absolute Percentage Error", limits = c(0, 25)) +
+  scale_x_continuous(name = "Kernel Density Estimation Binwidth") +
+  scale_color_grey(start = 0.3, end = 0.7) +
+  geom_hline(data = plotTime %>% filter(cutoff == "pooled"),
+             aes(yintercept = error, color = clustMethodf)) +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)))
+
+
+
+#### Supplementary Figure: Coverage plot ####
+
+coverage <- (si_cov
+             %>% filter(clustMethod != "kdt")
+             %>% group_by(prob)
+             %>% summarize(nRuns = sum(!is.na(meanDiff)),
+                           Mean = 100 * sum(meanInclude) / nRuns,
+                           Median = 100 * sum(medianInclude) / nRuns,
+                           SD = 100 * sum(sdInclude) / nRuns,
+                           clustMethod = first(clustMethod),
+                           cutoff = first(cutoff),
+                           .groups = "drop")
+             %>% select(clustMethod, cutoff, prob, Mean, Median, SD)
+             %>% gather("Parameter", "coverage", -prob, -clustMethod, -cutoff)
+             %>% filter(!is.na(coverage))
+             %>% mutate(clustMethodf = factor(clustMethod, levels = c("hc_absolute", "kd"),
+                                              labels = c("Hierarchical Cluster",
+                                                         "Kernel Density Estimation")))
+)
+
+ggplot(data = coverage %>% filter(cutoff != "pooled"),
+       aes(x = as.numeric(cutoff), y = coverage, color = Parameter)) +
+  geom_point() +
+  facet_wrap(~clustMethodf, scales = "free_x") +
+  scale_y_continuous(name = "Coverage", limits = c(70, 100)) +
+  scale_x_continuous(name = "Clustering Cutoff or Binwdith") +
+  geom_hline(data = coverage %>% filter(cutoff == "pooled"),
+             aes(yintercept = coverage, color = Parameter)) +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
+  ggsave(file = "../Figures/GISuppCov.png",
+         width = 7, height = 5, units = "in", dpi = 300)
+
+
