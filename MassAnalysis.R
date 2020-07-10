@@ -125,18 +125,21 @@ siHC1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
                   clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
                   initialPars = c(1.2, 2), shift = 0, bootSamples = 1000, progressBar = FALSE)
 siHC1$label <- "HC: Excluding 1-month co-prevalent cases"
+print("HC: Excluding 1-month co-prevalent cases")
 
 siHC2 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
                    timeDiffVar = "CombinedDiffYM", pVar = "pScaledI2",
                    clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
                    initialPars = c(1.2, 2), shift = 1/12, bootSamples = 1000, progressBar = FALSE)
 siHC2$label <- "HC: Excluding 2-month co-prevalent cases"
+print("HC: Excluding 2-month co-prevalent cases")
 
 siHC3 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
                      timeDiffVar = "CombinedDiffYM", pVar = "pScaledI2",
                      clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
                      initialPars = c(1.2, 2), shift = 2/12, bootSamples = 1000, progressBar = FALSE)
 siHC3$label <- "HC: Excluding 3-month co-prevalent cases"
+print("HC: Excluding 3-month co-prevalent cases")
 
 
 siKD1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
@@ -144,18 +147,21 @@ siKD1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
                    clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
                    initialPars = c(1.2, 2), shift = 0, bootSamples = 1000, progressBar = FALSE)
 siKD1$label <- "KD: Excluding 1-month co-prevalent cases"
+print("KD: Excluding 1-month co-prevalent cases")
 
 siKD2 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
                     timeDiffVar = "CombinedDiffYM", pVar = "pScaledI2",
                     clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
                     initialPars = c(1.2, 2), shift = 1/12, bootSamples = 1000, progressBar = FALSE)
 siKD2$label <- "KD: Excluding 2-month co-prevalent cases"
+print("KD: Excluding 2-month co-prevalent cases")
 
 siKD3 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
                     timeDiffVar = "CombinedDiffYM", pVar = "pScaledI2",
                     clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
                     initialPars = c(1.2, 2), shift = 2/12, bootSamples = 1000, progressBar = FALSE)
 siKD3$label <- "KD: Excluding 3-month co-prevalent cases"
+print("KD: Excluding 3-month co-prevalent cases")
 
 
 #Sensitivity analysis for recent immigration definition
@@ -164,12 +170,14 @@ siHCI1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
                    clustMethod = "hc_absolute", cutoffs = seq(0.025, 0.25, 0.025),
                    initialPars = c(1.2, 2), shift = 0, bootSamples = 1000, progressBar = FALSE)
 siHCI1$label <- "HC: Recent Arrival = 1 Year"
+print("HC: Recent Arrival = 1 Year")
 
 siKDI1 <- estimateSI(df = resMassCov2, indIDVar = "StudyID",
                    timeDiffVar = "CombinedDiffYM", pVar = "pScaledI1",
                    clustMethod = "kd", cutoffs = seq(0.01, 0.1, 0.01),
                    initialPars = c(1.2, 2), shift = 0, bootSamples = 1000, progressBar = FALSE)
 siKDI1$label <- "KD: Recent Arrival = 1 Year"
+print("KD: Recent Arrival = 1 Year")
 
 siAll <- bind_rows(siHC1, siHC2, siHC3, siKD1, siKD2, siKD3, siHCI1, siKDI1)
 
@@ -210,6 +218,7 @@ rFinal1$RiDf$label <- "Recent Arrival = 1 Year"
 rFinal1$RtDf$label <- "Recent Arrival = 1 Year"
 rFinal1$RtAvgDf$label <- "Recent Arrival = 1 Year"
 
+print("Recent Arrival = 1 Year")
 
 #Calculating the reproductive number using 2 year definition for recent immigration
 rFinal2 <- estimateR(resMassCov, dateVar = "CombinedDt", indIDVar = "StudyID",
@@ -220,6 +229,8 @@ rFinal2 <- estimateR(resMassCov, dateVar = "CombinedDt", indIDVar = "StudyID",
 rFinal2$RiDf$label <- "Recent Arrival = 2 Years"
 rFinal2$RtDf$label <- "Recent Arrival = 2 Years"
 rFinal2$RtAvgDf$label <- "Recent Arrival = 2 Years"
+
+print("Recent Arrival = 2 Years")
 
 RiData <- bind_rows(rFinal1$RiDf, rFinal2$RiDf)
 RtData <- bind_rows(rFinal1$RtDf, rFinal2$RtDf)
