@@ -114,7 +114,7 @@ simulated dataset with the same form as the real dataset. This simulated dataset
 is called "orderedMassSim.rds" and it can be used to run MassAnalysis.R starting
 at line 64 as indicated in the comments. The results produced by this program can then
 be used in MassEvaluate.R in order to replicate the form of the results, tables, and
-figures, in the manuscript though the actual values will be different.
+figures in the manuscript though the actual values will be different.
 
 In order to allow for replication of the Massachusetts analysis, the results of 
 selected analyses with this simulated dataset are located at the end of the 
