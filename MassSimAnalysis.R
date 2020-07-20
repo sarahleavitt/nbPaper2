@@ -3,61 +3,11 @@
 setwd("/project/sv-thesis/nbPaper2")
 rm(list = ls())
 
-
-######################### Estimating Probabilities ############################
-
 library(dplyr)
 library(tidyr)
 library(devtools)
 load_all("../nbTransmission")
 set.seed(103020)
-
-# #Reading in cleaned datasets from MassPrep.R
-# massPair <- readRDS("../Datasets/MassPair.rds")
-# massInd <- readRDS("../Datasets/MassInd.rds")
-# 
-# #Creating a new id
-# newID <- massInd %>%
-#   arrange(Spoligotype) %>%
-#   mutate(StudyID_new = 1:n()) %>%
-#   select(StudyID, StudyID_new)
-# 
-# #Removing a subset of people
-# notInTraing <- massInd %>%
-#   filter(is.na(HaveContInv) & HaveContact == FALSE) %>%
-#   sample_frac(0.8)
-# 
-# #Create
-# orderedMass_orig <- massPair %>%
-#   filter(CombinedDiff >= 0, Lineage == "Same" | is.na(Lineage)) %>%
-#   filter(!StudyID.1 %in% notInTraing$StudyID &
-#            !StudyID.2 %in% notInTraing$StudyID) %>%
-#   left_join(newID, by = c("StudyID.1" = "StudyID")) %>%
-#   left_join(newID, by = c("StudyID.2" = "StudyID"), suffix = c(".1", ".2")) %>%
-#   unite(EdgeID, StudyID_new.1, StudyID_new.2, remove = FALSE) %>%
-#   select(EdgeID, StudyID.1 = StudyID_new.1, StudyID.2 = StudyID_new.2,
-#          CombinedDt.1, CombinedDt.2, ContactTrain, RecentArrival1.2, RecentArrival2.2,
-#          County, Sex, Age, GENType, CountryOfBirth, Smear, SharedResG, AnyImmunoSup) %>%
-#   unite(CombinedDt, CombinedDt.1, CombinedDt.2, sep = "_")
-# 
-# orderedMass_permute <- as.data.frame(lapply(orderedMass_orig %>% select(-EdgeID, -StudyID.1, -StudyID.2,
-#                                                                         -ContactTrain, -GENType),
-#                                             sample), stringsAsFactors = TRUE)
-# orderedMass <- orderedMass_orig %>%
-#   select(EdgeID, StudyID.1, StudyID.2, ContactTrain, GENType) %>%
-#   bind_cols(orderedMass_permute) %>%
-#   separate(CombinedDt, c("CombinedDt.1", "CombinedDt.2"), sep = "_") %>%
-#   mutate(CombinedDiff = as.numeric(difftime(CombinedDt.2, CombinedDt.1, units = "days")),
-#          CombinedDiffY = CombinedDiff / 365,
-#          CombinedDiffYM = round(CombinedDiff / 30, 0) / 12,
-#          TimeCat = ifelse(CombinedDiffY <= 1, 1,
-#                           ifelse(CombinedDiffY > 1 & CombinedDiffY <= 2, 2,
-#                                  ifelse(CombinedDiffY > 2 & CombinedDiffY <= 3, 3,
-#                                         ifelse(CombinedDiffY > 3 & CombinedDiffY <= 4, 4, 5)))),
-#          TimeCat = factor(TimeCat, levels = c(1, 2, 3, 4, 5),
-#                           labels = c("<=1y", "1-2y", "2-3y", "3-4y", ">4y")))
-# 
-# saveRDS(orderedMass, "orderedMassSim.rds")
 
 
 orderedMass <- readRDS("orderedMassSim.rds")
@@ -74,10 +24,7 @@ resMass <- nbProbabilities(orderedPair = orderedMass, indIDVar = "StudyID", pair
 resMassCov <- (orderedMass
                %>% full_join(resMass$probabilities, by = "EdgeID")
                #Setting probabilities to 0 if infectee was a recent immigrant but not if it was a training link
-               %>% mutate(pScaledI1 = ifelse(!is.na(RecentArrival1.2) &
-                                               RecentArrival1.2 == TRUE &
-                                               (is.na(ContactTrain) | ContactTrain != TRUE), 0, pScaled),
-                          pScaledI2 = ifelse(!is.na(RecentArrival2.2) &
+               %>% mutate(pScaledI2 = ifelse(!is.na(RecentArrival2.2) &
                                                RecentArrival2.2 == TRUE &
                                                (is.na(ContactTrain) | ContactTrain != TRUE), 0, pScaled))
 )
@@ -98,10 +45,7 @@ resMass2 <- nbProbabilities(orderedPair = orderedMass, indIDVar = "StudyID", pai
 resMassCov2 <- (orderedMass
                 %>% full_join(resMass2$probabilities, by = c("EdgeID"))
                 #Setting probabilities to 0 if infectee was a recent immigrant but not if it was a training link
-                %>% mutate(pScaledI1 = ifelse(!is.na(RecentArrival1.2) &
-                                                RecentArrival1.2 == TRUE &
-                                                (is.na(ContactTrain) | ContactTrain != TRUE), 0, pScaled),
-                           pScaledI2 = ifelse(!is.na(RecentArrival2.2) &
+                %>% mutate(pScaledI2 = ifelse(!is.na(RecentArrival2.2) &
                                                 RecentArrival2.2 == TRUE &
                                                 (is.na(ContactTrain) | ContactTrain != TRUE), 0, pScaled))
 )
@@ -182,19 +126,6 @@ monthCut2 <- ceiling(0.8 * totalTime)
 
 
 #Calculating the reproductive number using 1 year definition for recent immigration
-rFinal1 <- estimateR(resMassCov, dateVar = "CombinedDt", indIDVar = "StudyID",
-                     pVar = "pScaledI1", timeFrame = "months",
-                     rangeForAvg = c(monthCut1, monthCut2),
-                     bootSamples = 1000, alpha = 0.05, progressBar = FALSE)
-
-rFinal1$RiDf$label <- "Recent Arrival = 1 Year"
-rFinal1$RtDf$label <- "Recent Arrival = 1 Year"
-rFinal1$RtAvgDf$label <- "Recent Arrival = 1 Year"
-
-print("Recent Arrival = 1 Year")
-
-
-#Calculating the reproductive number using 2 year definition for recent immigration
 rFinal2 <- estimateR(resMassCov, dateVar = "CombinedDt", indIDVar = "StudyID",
                      pVar = "pScaledI2", timeFrame = "months",
                      rangeForAvg = c(monthCut1, monthCut2),
@@ -204,11 +135,11 @@ rFinal2$RiDf$label <- "Recent Arrival = 2 Years"
 rFinal2$RtDf$label <- "Recent Arrival = 2 Years"
 rFinal2$RtAvgDf$label <- "Recent Arrival = 2 Years"
 
-RiData <- bind_rows(rFinal1$RiDf, rFinal2$RiDf)
-RtData <- bind_rows(rFinal1$RtDf, rFinal2$RtDf)
-RtAvg <- bind_rows(rFinal1$RtAvgDf, rFinal2$RtAvgDf)
+print("Recent Arrival = 2 Year2")
 
-print("Recent Arrival = 2 Years")
+RiData <- rFinal2$RiDf
+RtData <- rFinal2$RtDf
+RtAvg <- rFinal2$RtAvgDf
 
 
 #Saving the confidence interval datasets

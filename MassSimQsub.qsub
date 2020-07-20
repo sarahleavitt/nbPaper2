@@ -21,5 +21,5 @@
 #$-l cpu_arch=!bulldozer
 
 module load R/3.6.0
-time Rscript MassSim.R
+time Rscript MassSimAnalysis.R
 
