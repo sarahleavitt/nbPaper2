@@ -9,7 +9,6 @@
 
 # NOTE: Program takes around 5 hours to run completely (with the original dataset).
 # Best to run using MassQsub.qsub and run on a shared commuting cluster
-# It will run in 1 hour using the simulated dataset: orderedMassSim.rds 
 ################################################################################
 
 

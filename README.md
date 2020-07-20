@@ -95,8 +95,7 @@ intervals.
 ### MassQsub.qsub
 
 A qsub program to run MassAnalysis.R on a shared computing cluster because it takes
-5 hours to run with the ~900 individual Massachusetts dataset and 1 hour to run
-with the simulated Massachusetts-like dataset.
+5 hours to run with the ~900 individual Massachusetts dataset.
 
 
 ### MassEvaluate.R
