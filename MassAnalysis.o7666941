@@ -1,0 +1,55 @@
+
+Attaching package: 'dplyr'
+
+The following objects are masked from 'package:stats':
+
+    filter, lag
+
+The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union
+
+Loading required package: usethis
+Loading nbTransmission
+
+Attaching package: 'testthat'
+
+The following object is masked from 'package:devtools':
+
+    test_file
+
+The following object is masked from 'package:tidyr':
+
+    matches
+
+The following object is masked from 'package:dplyr':
+
+    matches
+
+[1] 465042
+[1] 0.515825
+
+ FALSE   TRUE   <NA> 
+  2058     26 218674 
+
+      FALSE        TRUE        <NA> 
+0.009322425 0.000117776 0.990559799 
+[1] "Finished estimating probabilities with time difference"
+[1] "Finished estimating probabilities without time difference"
+[1] "HC: Excluding 1-month co-prevalent cases"
+[1] "HC: Excluding 2-month co-prevalent cases"
+[1] "HC: Excluding 3-month co-prevalent cases"
+[1] "KD: Excluding 1-month co-prevalent cases"
+[1] "KD: Excluding 2-month co-prevalent cases"
+[1] "KD: Excluding 3-month co-prevalent cases"
+[1] "HC: Recent Arrival = 1 Year"
+[1] "KD: Recent Arrival = 1 Year"
+Please choose the stable portion of the outbreak to calculate the average Rt
+      RtAvg
+1 0.7865468
+[1] "Recent Arrival = 1 Year"
+[1] "Recent Arrival = 2 Years"
+
+real	304m0.720s
+user	300m21.060s
+sys	3m5.245s
