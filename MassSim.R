@@ -55,7 +55,7 @@ covariates <- c("Sex", "Age", "CountryOfBirth", "County", "Smear", "AnyImmunoSup
 
 resMass <- nbProbabilities(orderedPair = orderedMass, indIDVar = "StudyID", pairIDVar = "EdgeID",
                            goldStdVar = "ContactTrain", covariates = covariates,
-                           label = "ContactTime", l = 0.5, n = 10, m = 1, nReps = 10,
+                           label = "ContactTime", l = 0.5, n = 10, m = 1, nReps = 50,
                            progressBar = FALSE)
 
 resMassCov <- (orderedMass
@@ -79,7 +79,7 @@ covariates2 <- c("Sex", "Age", "CountryOfBirth", "County", "Smear", "AnyImmunoSu
 
 resMass2 <- nbProbabilities(orderedPair = orderedMass, indIDVar = "StudyID", pairID = "EdgeID",
                             goldStdVar = "ContactTrain", covariates = covariates2,
-                            label = "ContactNoTime", l = 0.5, n = 10, m = 1, nReps = 10,
+                            label = "ContactNoTime", l = 0.5, n = 10, m = 1, nReps = 50,
                             progressBar = FALSE)
 
 resMassCov2 <- (orderedMass
