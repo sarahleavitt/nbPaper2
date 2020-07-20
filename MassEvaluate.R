@@ -40,9 +40,6 @@ orderedMass <- (massPair
                            County, Sex, Age, Spoligotype, MIRUDiff, MIRUDiffG, GENType,
                            PCRType, Lineage, CountryOfBirth, Smear, SharedResG, AnyImmunoSup,
                            TimeCat, CombinedDiff, CombinedDiffY, ContactTrain)
-                #Creating a gold standard based on the GenType
-                %>% mutate(miruLink = ifelse(GENType == "Same" & County == "Same", TRUE,
-                                             ifelse(MIRUDiffG == "4+", FALSE, NA)))
 )
 
 
