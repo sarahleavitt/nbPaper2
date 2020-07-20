@@ -1,12 +1,14 @@
 # nbPaper2
 
-This directory contains the code to produce the results for Leavitt et al. ????, 
-published in ??? (LINK HERE). It contains code to run the simulations assessing 
-using naive Bayes transmission probabilities to estimate the generation/serial 
-interval and the application to TB surveillance data from the Massachusetts 
-department of health (DPH). These programs use the nbTransmission R package 
-(https://github.com/sarahleavitt/nbTransmission) as well as the simulation programs 
-in the nbSimulation directory (https://github.com/sarahleavitt/nbSimulation).
+This directory contains the code to produce the results for
+"Estimation of the generation interval using pair-wise relative transmission probabilities" 
+by Leavitt et al. It contains code to run the simulations assessing 
+using naive Bayes transmission probabilities to estimate the generation and serial 
+intervals and the application to TB surveillance data from the Massachusetts 
+department of health (DPH). These programs use the nbTransmission R package available
+on CRAN or GitHub (https://github.com/sarahleavitt/nbTransmission)
+as well as the simulation programs in the nbSimulation directory
+(https://github.com/sarahleavitt/nbSimulation).
  
 
 ## Simulation Programs
@@ -60,8 +62,7 @@ example figure.
 ### Paper2Results.R
 
 This program reads in all of the results from the the simulation scenarios and then 
-calculates all results including values in the text,
-tables and figures.
+calculates all results including values in the text, tables and figures of the manuscript.
 
 
 ***
@@ -71,7 +72,9 @@ tables and figures.
 
 The following programs were used to prepare, analyze, and evaluate applying the 
 naive Bayes transmission method to TB surveillance data from the Massachusetts 
-department of health (DPH). The dataset used is not publically available. 
+Department of Public Health (DPH). The dataset used is not publically available, but the 
+next section describes the simulated dataset with the same form that is included
+which can be used to create similar results.
 
 
 ### MassPrep.R
@@ -88,3 +91,31 @@ all cases and excluding one-month co-prevelant cases with 95% confidence interva
 and the monthly and overall average reproductive numbers also with confidence 
 intervals.
 
+
+### MassQsub.qsub
+
+A qsub program to run MassAnalysis.R on a shared computing cluster because it takes
+5 hours to run with the ~900 individual Massachusetts dataset and 1 hour to run
+with the simulated Massachusetts-like dataset.
+
+
+### MassEvaluate.R
+
+This program reads in all of the results from the Massachusetts analysis and then 
+calculates all results including values in the text, tables and figures of the manuscript.
+
+
+*** 
+
+## Simulated Massachusetts-like Data
+
+Because the Massachusetts dataset could not be shared publically, we created a
+simulated dataset with the same form as the real dataset. This simulated dataset
+is called "orderedMassSim.rds" and it can be used to run MassAnalysis.R starting
+at line 64 as indicated in the comments. The results produced by this program can then
+be used in MassEvaluate.R in order to replicate the form of the results, tables, and
+figures, in the manuscript though the actual values will be different.
+
+In order to allow for replication of the Massachusetts analysis, the results of 
+selected analyses with this simulated dataset are located at the end of the 
+Supplementary Material of the manuscript.
