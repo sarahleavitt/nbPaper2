@@ -108,16 +108,16 @@ print("Completed SNP threshold gold standard analysis")
 clustRes <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
                              clustMethod = "hc_absolute", cutoff = 0.05)
 
-# #Finding good example cases
-# ggplot(data = clustRes %>% filter(individualID.2 >= 10010, individualID.2 <= 10050),
-#        aes(x = pRank, y = pScaled, color = cluster, shape = transmission)) +
-#   geom_point() +
-#   facet_wrap(~individualID.2, scales = "free") +
-#   theme(legend.position = "none")
+#Finding good example cases
+ggplot(data = clustRes %>% filter(individualID.2 >= 10010, individualID.2 <= 10050),
+       aes(x = pRank, y = pScaled, color = cluster, shape = transmission)) +
+  geom_point() +
+  facet_wrap(~individualID.2, scales = "free") +
+  theme(legend.position = "none")
 
-examples <- clustRes %>% filter(individualID.2 %in% c(10047, 10039))
+examples <- clustRes %>% filter(individualID.2 %in% c(10047, 10025))
 ind1 <- examples %>% filter(individualID.2 == 10047) %>% arrange(pRank)
-ind2 <- examples %>% filter(individualID.2 == 10039) %>% arrange(pRank)
+ind2 <- examples %>% filter(individualID.2 == 10025) %>% arrange(pRank)
 
 ggplot(data = examples, aes(x = pRank, y = pScaled, color = cluster, shape = transmission)) +
   geom_jitter() +
@@ -201,8 +201,8 @@ lay <- rbind(c(1, 2), c(3, 4), c(5, 6))
 grid.arrange(p1, p2, pHC1, pHC2, pKD1, pKD2, layout_matrix = lay)
 
 pAll <- arrangeGrob(p1, p2, pHC1, pHC2, pKD1, pKD2, layout_matrix = lay)
-ggsave(file = "../Figures/ClustExamples.png", plot = pAll,
-       width = 6, height = 7, units = "in", dpi = 300)
+ggsave(file = "../Figures/ClustExamples.eps", plot = pAll,
+       width = 6, height = 7, units = "in", dpi = 600)
 
 
 

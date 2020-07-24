@@ -267,8 +267,8 @@ ggplot(data = siAllLongPlot, aes(x = as.numeric(cutoff), y = est,
                                     size = 11),
         axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0),
                                     size = 11)) +
-  ggsave(file = "../Figures/MassSI.png",
-         width = 7, height = 7, units = "in", dpi = 300)
+  ggsave(file = "../Figures/MassSI.eps",
+         width = 7, height = 7, units = "in", dpi = 600)
 
 
 ## PRESENTATION VERSION ##
@@ -290,6 +290,31 @@ ggplot(data = siAllLongPlot, aes(x = as.numeric(cutoff), y = est,
   guides(color = guide_legend(nrow = 2, byrow = FALSE)) +
   ggsave(file = "../Figures/MassSI_pres.png",
          width = 7, height = 7.5, units = "in", dpi = 300)
+
+
+## PRESENTATION VERSION - ABBREVIATED ##
+siAllLongPlot_a <- siAllLongPlot %>% filter(label2 == "No serial interval restriction",
+                                           Parameter != "Standard Deviation")
+siAllLongPooled_a <- siAllLongPooled %>% filter(label2 == "No serial interval restriction",
+                                           Parameter != "Standard Deviation")
+ggplot(data = siAllLongPlot_a,
+       aes(x = as.numeric(cutoff), y = est, color = Parameter)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = cilb, ymax = ciub, width = width)) +
+  geom_hline(data = siAllLongPooled_a, aes(yintercept = est, color = Parameter)) +
+  geom_hline(data = siAllLongPooled_a, aes(yintercept = cilb, color = Parameter), linetype = "dotted") +
+  geom_hline(data = siAllLongPooled_a, aes(yintercept = ciub, color = Parameter), linetype = "dotted") +
+  facet_wrap(~clustMethod, scales = "free_x") +
+  scale_x_continuous(name = "Clustering Cutoff/Binwidth") +
+  scale_y_continuous(name = "Estimate in Years") +
+  theme_bw(base_size = 16) +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
+  guides(color = guide_legend(nrow = 1, byrow = FALSE)) +
+  ggsave(file = "../Figures/MassSI_abb.png",
+         width = 7, height = 5, units = "in", dpi = 300)
 
 
 

@@ -82,8 +82,8 @@ ggplot(data = plotData1, aes(y = absDiff, x = probf,
         axis.text.x = element_text(angle = 45, hjust = 1),
         axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
         axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
-  ggsave(file = "../Figures/GIResults.png",
-         width = 7, height = 7, units = "in", dpi = 300)
+  ggsave(file = "../Figures/GIResults.eps",
+         width = 7, height = 7, units = "in", dpi = 600)
 
 ## COLOR VERSION ##
 ggplot(data = plotData1, aes(y = absDiff, x = probf,
@@ -116,6 +116,22 @@ ggplot(data = plotData1, aes(y = absDiff, x = probf,
         axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
   ggsave(file = "../Figures/GIResults_pres.png",
          width = 7, height = 8, units = "in", dpi = 300)
+
+
+## PRESENTATION VERSION - ABBREVIATED ##
+ggplot(data = plotData1 %>% filter(label == "Baseline"), aes(y = absDiff, x = probf,
+                             fill = Parameter, color = Parameter)) +
+  geom_violin(alpha = 0.7, draw_quantiles = 0.5) +
+  geom_hline(yintercept = 0) +
+  scale_y_continuous(name = "Absolute Bias in Days", limits = c(-15, 15)) +
+  scale_x_discrete(name = "Generation Interval Estimation Method") +
+  theme_bw(base_size = 16) +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
+  ggsave(file = "../Figures/GIResults_abb.png",
+         width = 7, height = 7, units = "in", dpi = 300)
 
 
 
