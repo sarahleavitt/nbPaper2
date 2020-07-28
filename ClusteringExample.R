@@ -201,7 +201,7 @@ lay <- rbind(c(1, 2), c(3, 4), c(5, 6))
 grid.arrange(p1, p2, pHC1, pHC2, pKD1, pKD2, layout_matrix = lay)
 
 pAll <- arrangeGrob(p1, p2, pHC1, pHC2, pKD1, pKD2, layout_matrix = lay)
-ggsave(file = "../Figures/ClustExamples.eps", plot = pAll,
+ggsave(file = "../Figures/ClustExamples.pdf", plot = pAll,
        width = 6, height = 7, units = "in", dpi = 600)
 
 

@@ -71,7 +71,7 @@ plotData1 <- (si2
 ggplot(data = plotData1, aes(y = absDiff, x = probf,
                              fill = Parameter, color = Parameter)) +
   facet_wrap(~label) +
-  geom_violin(alpha = 0.7, draw_quantiles = 0.5) +
+  geom_violin(alpha = 0.5, draw_quantiles = 0.5) +
   geom_hline(yintercept = 0) +
   scale_y_continuous(name = "Absolute Bias in Days", limits = c(-15, 15)) +
   scale_x_discrete(name = "Generation Interval Estimation Method") +
@@ -82,7 +82,7 @@ ggplot(data = plotData1, aes(y = absDiff, x = probf,
         axis.text.x = element_text(angle = 45, hjust = 1),
         axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
         axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
-  ggsave(file = "../Figures/GIResults.eps",
+  ggsave(file = "../Figures/GIResults.pdf",
          width = 7, height = 7, units = "in", dpi = 600)
 
 ## COLOR VERSION ##
